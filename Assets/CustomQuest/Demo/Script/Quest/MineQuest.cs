@@ -6,7 +6,7 @@ using Custom.Quest;
 
 namespace QuestDemo
 {
-    [CreateAssetMenu(fileName = "MineQuest", menuName = "Quest Demo", order = 1)]
+    [CreateAssetMenu(fileName = "MineQuest", menuName = "Quest Demo/Quest", order = 1)]
     public class MineQuest : ScriptableObject, IQuest
     {
         [SerializeField]
@@ -31,6 +31,13 @@ namespace QuestDemo
             this._Rule.Start();
 
             this.ToList().ForEach(f => f.Invoke());
+
+            return this;
+        }
+
+        public IQuest End() 
+        {
+            this.ToList().ForEach(f => f.EndInvoke());
 
             return this;
         }

@@ -19,6 +19,7 @@ namespace Custom.Quest
 
         public abstract IQuest Initialize();
         public abstract IQuest Start();
+        public abstract IQuest End();
 
         public IEnumerator<IElement> GetEnumerator() => this._Elements.GetEnumerator();
 
@@ -32,6 +33,7 @@ namespace Custom.Quest
 
         public IQuest Initialize();
         public IQuest Start();
+        public IQuest End();
 
         public TElement GetElement<TElement>() where TElement : IElement => this.OfType<TElement>().First();
     }

@@ -10,6 +10,7 @@ namespace Custom.Quest
     {
         public abstract void Initialize();
         public abstract void Invoke();
+        public abstract void EndInvoke();
     }
 
     public interface IElement 
@@ -17,5 +18,7 @@ namespace Custom.Quest
         public void Initialize();
 
         public void Invoke();
+
+        public void EndInvoke();
     }
 }

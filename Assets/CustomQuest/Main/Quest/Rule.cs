@@ -18,7 +18,7 @@ namespace Custom.Quest
     public interface IRule 
     {
         public EProgress Progress { get; }
-
+        
         public void Initialize();
         public void Start();
         public EProgress CheckRule(object value);

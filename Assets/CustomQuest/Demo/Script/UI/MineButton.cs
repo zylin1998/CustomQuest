@@ -18,8 +18,8 @@ namespace QuestDemo
         [SerializeField]
         private List<MineButton> _Square;
         
-        public bool IsMine { get; set; }
         public int Position { get; set; }
+        public bool IsMine { get; set; }
         public bool IsFlag { get; private set; }
         public bool IsDetected { get; private set; }
 
@@ -61,28 +61,16 @@ namespace QuestDemo
                 this.SetImage(null, ImageDetail.Clear);
 
                 var mineCount = this._Square.Count(c => c.IsMine);
+                var hasMine = mineCount > 0;
+                
+                this._MineNumber.SetText(string.Format("{0}", hasMine ? mineCount : ""));
 
-                if (mineCount > 0) 
-                { 
-                    this._MineNumber.SetText(string.Format("{0}", mineCount));
-
-                    return 1; 
-                }
-
-                return 1 + this._Square.Sum(f => f.DetectedMine());
+                return 1 + (hasMine ? 0 : this._Square.Sum(f => f.DetectedMine()));
             }
 
-            else 
-            {
-                this.SetImage(QuestDemo.ImageDetail.Mine, ImageDetail.Normal);
+            this.SetImage(QuestDemo.ImageDetail.Mine, ImageDetail.Normal);
 
-                return -1;
-            }
-        }
-
-        public void SetFlag() 
-        {
-            this.SetImage(QuestDemo.ImageDetail.Flag, ImageDetail.Normal);
+            return -1;
         }
 
         public void ShowMine() 
@@ -101,6 +89,20 @@ namespace QuestDemo
             }
 
             this.SetImage(sprite, color);
+        }
+
+        public void Reset()
+        {
+            this.IsMine = false;
+            this.IsFlag = false;
+            this.IsDetected = false;
+            this.Position = 0;
+
+            this._MineNumber.SetText("");
+
+            this.SetImage(QuestDemo.ImageDetail.Ground, ImageDetail.Normal);
+
+            this.gameObject.SetActive(true);
         }
 
         #region Pointer Events
@@ -158,7 +160,6 @@ namespace QuestDemo
             this._AreaImage.sprite = sprite;
             this._AreaImage.color = color;
         }
-
     }
     
     [System.Serializable]

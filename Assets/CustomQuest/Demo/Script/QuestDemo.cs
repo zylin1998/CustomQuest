@@ -15,15 +15,19 @@ namespace QuestDemo
         [SerializeField]
         private GridLayoutGroup _GridLayoutGroup;
         [SerializeField]
-        private MineQuest _DemoQuest;
+        private MineQuestSeries _DemoQuestSeries;
         [SerializeField]
-        private ImageDetail _ImageDetail;
+        private ResultMessage _ResultMessage;
         [SerializeField]
         private TextMeshProUGUI _MineCount;
+        [SerializeField]
+        private ImageDetail _ImageDetail;
         [SerializeField]
         private List<MineButton> _MineButtons;
 
         private IQuest _Quest;
+        
+        #region Properties
 
         public IQuest Quest 
         {
@@ -36,7 +40,7 @@ namespace QuestDemo
                 if (value.Rule is MineRule mineRule) 
                 {
                     this.Rule = mineRule;
-
+                    
                     this.Square = mineRule.Size;
                 }
             }
@@ -61,12 +65,14 @@ namespace QuestDemo
         public MineButton this[int x, int y] => this._MineButtons[LocateToIndex(new Vector2Int(x, y))];
         public MineButton this[Vector2Int locate] => this._MineButtons[LocateToIndex(locate)];
 
+        #endregion
+
+        #region Static Properties
+
         public static ImageDetail ImageDetail { get; private set; }
         public static QuestDemo Demo { get; private set; }
 
         private static EMineMap _CheckType;
-
-        private static System.Action<EMineMap> OnTypeChanged = (type) => { };
 
         public static EMineMap CheckType 
         { 
@@ -80,12 +86,25 @@ namespace QuestDemo
             }
         }
 
+        private static System.Action<EMineMap> OnTypeChanged = (type) => { };
+
         public static event System.Action<EMineMap> TypeChangedEvent 
         {
             add => OnTypeChanged += value;
 
             remove => OnTypeChanged -= value;
         }
+
+        private static System.Action<IQuest> OnQuestEnd = (quest) => { };
+
+        public static event System.Action<IQuest> QuestEndEvent
+        {
+            add => OnQuestEnd += value;
+
+            remove => OnQuestEnd -= value;
+        }
+
+        #endregion
 
         private void Awake()
         {
@@ -99,13 +118,17 @@ namespace QuestDemo
             ImageDetail = this._ImageDetail;
         }
 
+        #region Script Behaviour
+
         private void Start()
         {
-            this.SetQuest(this._DemoQuest);
-
             MineButton.DetectedEvent += this.CheckRule;
 
-            this.GameStart();
+            this._ResultMessage["Previous"].ClickEvent += this.PreviousQuest;
+            this._ResultMessage["Restart"].ClickEvent += this.RestartQuest;
+            this._ResultMessage["Next"].ClickEvent += this.NextQuest;
+
+            this.NextQuest();
         }
 
         private void OnDestroy()
@@ -115,11 +138,29 @@ namespace QuestDemo
             MineButton.DetectedEvent -= this.CheckRule;
         }
 
+        #endregion
+
+        #region Quest Manage
+
         public void SetQuest(IQuest quest) 
         {
             this.Quest = quest;
 
             this.Quest.Initialize();
+        }
+
+        public void PreviousQuest() => this.StartQuest(this._DemoQuestSeries.QuestGetter.Previous);
+        public void NextQuest() => this.StartQuest(this._DemoQuestSeries.QuestGetter.Next);
+        public void RestartQuest() => this.StartQuest(this.Quest);
+
+        public void StartQuest(IQuest quest) 
+        {
+            if (quest != null)
+            {
+                this.SetQuest(quest);
+
+                this.GameStart();
+            }
         }
 
         public void GameStart() 
@@ -135,17 +176,13 @@ namespace QuestDemo
             {
                 if (c < map.Count)
                 {
-                    space.gameObject.SetActive(true);
+                    space.Reset();
+                    space.IsMine = map[c] == EMineMap.Mine;
                     
                     this.SetSquare(c, space);
-
-                    space.IsMine = map[c] == EMineMap.Mine;
                 }
-
-                else 
-                {
-                    space.gameObject.SetActive(false);
-                }
+                
+                else { space.gameObject.SetActive(false); }
 
                 c++;
             });
@@ -162,40 +199,57 @@ namespace QuestDemo
 
             this._MineCount.SetText(string.Format("{0}", this.Rule.FakeMineCount));
 
-            Debug.Log(result);
+            var failed = result.HasFlag(IRule.EProgress.Failed);
+            var fulfilled = result.HasFlag(IRule.EProgress.FulFilled);
 
-            if (result == IRule.EProgress.Failed) 
+            if (failed) { this._MineButtons.ForEach(f => f.ShowMine()); }
+
+            if (fulfilled || failed) 
             {
-                this._MineButtons.ForEach(f => f.ShowMine());
+                this._Quest.End();
+                
+                var isFirst = this._DemoQuestSeries.QuestGetter.IsFirst;
+                var isLast = this._DemoQuestSeries.QuestGetter.IsLast;
+
+                this._ResultMessage["Previous"].Interactable = !isFirst;
+                this._ResultMessage["Next"].Interactable = !isLast && fulfilled;
+
+                OnQuestEnd?.Invoke(this.Quest);
             }
         }
+
+        #endregion
 
         #region UI Map Setting
 
         private void SetSquare(int index, MineButton mine) 
         {
-            var locate = IndexToLocate(index);
+            var sizeX = this.Square.x;
+            var sizeY = this.Square.y;
+            var locate = this.IndexToLocate(index);
             var list = new List<MineButton>();
 
-            for(var y = -1; y <= 1; y++) 
+            var locateList = new List<Vector2Int>
             {
-                var locateY = locate.y + y;
+                new Vector2Int(-1, -1),
+                new Vector2Int( 0, -1),
+                new Vector2Int( 1, -1),
+                new Vector2Int(-1,  0),
+                new Vector2Int( 1,  0),
+                new Vector2Int(-1,  1),
+                new Vector2Int( 0,  1),
+                new Vector2Int( 1,  1),
+            };
 
-                if (locateY <= -1 || locateY >= this.Square.y) { continue; }
+            locateList.ForEach(l =>
+            {
+                var target = l + locate;
 
-                for(var x = -1; x <= 1; x++) 
-                {
-                    var locateX = locate.x + x;
+                if (target.x < 0 || target.y < 0) { return; }
+                if (target.x >= sizeX || target.y >= sizeY) { return; }
 
-                    if (locateX <= -1 || locateX >= this.Square.x) { continue; }
-
-                    var l = new Vector2Int(locateX, locateY);
-
-                    if (l == locate) { continue; }
-                    
-                    list.Add(this[l]);
-                }
-            }
+                list.Add(this[target]);
+            });
 
             mine.Position = index;
             mine.SetSquare(list);

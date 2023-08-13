@@ -21,37 +21,22 @@ namespace QuestDemo
         {
             QuestDemo.TypeChangedEvent += (type) =>
             {
-                if (this._CheckType != type)
-                {
-                    this.SetImage(this.Sprite, ImageDetail.Normal);
-                }
+                var color = this._CheckType != type ? ImageDetail.Normal : ImageDetail.PointerDown;
 
-                else
-                {
-                    this.SetImage(this.Sprite, ImageDetail.PointerDown);
-                }
+                this.SetColor(color);
             };
         }
 
         private void Start()
         {
             this.Sprite = this._CheckType == EMineMap.Flag ? QuestDemo.ImageDetail.Flag : QuestDemo.ImageDetail.Mine;
+
+            this._TypeImage.sprite = this.Sprite;
         }
 
-        public void OnPointerDown(PointerEventData eventData) 
-        {
-            this.SetImage(this.Sprite, ImageDetail.PointerDown);
-        }
+        public void OnPointerDown(PointerEventData eventData) => this.SetColor(ImageDetail.PointerDown);
+        public void OnPointerClick(PointerEventData eventData)  => QuestDemo.CheckType = this._CheckType;
 
-        public void OnPointerClick(PointerEventData eventData) 
-        {
-            QuestDemo.CheckType = this._CheckType;
-        }
-
-        private void SetImage(Sprite sprite, Color color) 
-        {
-            this._TypeImage.sprite = sprite;
-            this._BackgroundImage.color = color;
-        }
+        private void SetColor(Color color) => this._BackgroundImage.color = color;
     }
 }

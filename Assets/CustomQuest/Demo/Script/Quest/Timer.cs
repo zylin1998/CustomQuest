@@ -11,9 +11,11 @@ namespace QuestDemo
     public class Timer : System.Timers.Timer, IElement
     {
         [SerializeField]
-        private float _PassTime = 0f;
+        private double _PassTime = 0f;
+        [SerializeField]
+        private double _Interval = 10;
 
-        public float PassTime => this._PassTime;
+        public TimeDisplay PassTime => new TimeDisplay(this._PassTime);
 
         public Timer() : base()
         {
@@ -27,7 +29,7 @@ namespace QuestDemo
 
         public void Adding(object sender, System.Timers.ElapsedEventArgs e)
         {
-            this._PassTime += (float)(this.Interval / 1000f);
+            this._PassTime += this.Interval;
         }
 
         public void Initialize()
@@ -37,7 +39,47 @@ namespace QuestDemo
 
         public void Invoke()
         {
+            this.Interval = this._Interval;
+            
             this.Start();
+        }
+
+        public void EndInvoke()
+        {
+            this.Stop();
+        }
+    }
+
+    [Serializable]
+    public struct TimeDisplay 
+    {
+        [SerializeField]
+        private int _Hour;
+        [SerializeField]
+        private int _Minute;
+        [SerializeField]
+        private int _Second;
+        [SerializeField]
+        private int _MiniSecond;
+
+        public int Hour => this._Hour;
+        public int Minute => this._Minute;
+        public int Second => this._Second;
+        public int MiniSecond => this._MiniSecond;
+
+        public double msTime { get; }
+        public int SecondOnly { get; }
+
+        public TimeDisplay(double time) 
+        {
+            this.msTime = time;
+
+            this.SecondOnly = (int)this.msTime / 1000;
+
+            this._MiniSecond = (int)this.msTime % 1000;
+            this._Hour = this.SecondOnly / 3600;
+            this._Minute = this.SecondOnly % 3600 / 60;
+            this._Second = this.SecondOnly % 60;
         }
     }
 }
