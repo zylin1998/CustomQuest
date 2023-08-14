@@ -29,6 +29,7 @@ namespace QuestDemo
         public int FakeMineCount => this._MineCount - this._FlagPositions.Count;
         public IRule.EProgress Progress => this._Progress;
 
+        public bool HasCleared { get; private set; }
 
         public void Initialize()
         {
@@ -51,6 +52,13 @@ namespace QuestDemo
             this._Progress = IRule.EProgress.Progress;
         }
 
+        public void Reset() 
+        {
+            this.HasCleared = false;
+
+            this.Initialize();
+        }
+
         public IRule.EProgress CheckRule(object value)
         {
             if (value is MapVariation variation) { return this.CheckRule(variation); }
@@ -60,9 +68,11 @@ namespace QuestDemo
 
         public IRule.EProgress CheckRule(MapVariation variation) 
         {
-            if (variation.MineMap == EMineMap.Flag) 
+            if (variation.MineMap == EMineMap.Flag ) 
             {
-                this._FlagPositions.Add(variation.Position);
+                if (variation.Count > 0) { this._FlagPositions.Add(variation.Position); }
+
+                if (variation.Count < 0) { this._FlagPositions.Remove(variation.Position); }
 
                 this._Progress = this.CheckFlagPosi() ? IRule.EProgress.FulFilled : IRule.EProgress.Progress;
             }
@@ -82,6 +92,11 @@ namespace QuestDemo
             if (variation.MineMap == EMineMap.Mine) 
             {
                 this._Progress = IRule.EProgress.Failed;
+            }
+
+            if (!this.HasCleared)
+            {
+                this.HasCleared = this._Progress.HasFlag(IRule.EProgress.FulFilled);
             }
 
             return this._Progress;

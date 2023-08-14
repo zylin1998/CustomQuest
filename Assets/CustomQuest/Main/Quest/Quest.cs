@@ -16,17 +16,19 @@ namespace Custom.Quest
 
         public IRule Rule => this._Rule;
         public IReward Reward => this._Reward;
+        public bool IsClear => this.Rule.Progress.HasFlag(IRule.EProgress.FulFilled);
 
         public abstract IQuest Initialize();
         public abstract IQuest Start();
         public abstract IQuest End();
+        public abstract IQuest Reset();
 
         public IEnumerator<IElement> GetEnumerator() => this._Elements.GetEnumerator();
 
         IEnumerator IEnumerable.GetEnumerator() => this.GetEnumerator();
     }
 
-    public interface IQuest : IEnumerable<IElement>
+    public interface IQuest : IEnumerable<IElement>, IClear
     {
         public IReward Reward { get; }
         public IRule Rule { get; }
@@ -34,6 +36,7 @@ namespace Custom.Quest
         public IQuest Initialize();
         public IQuest Start();
         public IQuest End();
+        public IQuest Reset();
 
         public TElement GetElement<TElement>() where TElement : IElement => this.OfType<TElement>().First();
     }

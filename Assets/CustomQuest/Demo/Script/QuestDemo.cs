@@ -2,7 +2,6 @@ using System.Linq;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.UI;
 using Custom.Quest;
 using TMPro;
 
@@ -11,23 +10,19 @@ namespace QuestDemo
     public class QuestDemo : MonoBehaviour
     {
         [SerializeField]
-        private Transform _Content;
+        private MineChapter _DemoQuestChapter;
         [SerializeField]
-        private GridLayoutGroup _GridLayoutGroup;
-        [SerializeField]
-        private MineQuestSeries _DemoQuestSeries;
+        private MineArea _MineArea;
         [SerializeField]
         private ResultMessage _ResultMessage;
         [SerializeField]
         private TextMeshProUGUI _MineCount;
         [SerializeField]
         private ImageDetail _ImageDetail;
-        [SerializeField]
-        private List<MineButton> _MineButtons;
 
-        private IQuest _Quest;
-        
         #region Properties
+        
+        private IQuest _Quest;
 
         public IQuest Quest 
         {
@@ -40,30 +35,15 @@ namespace QuestDemo
                 if (value.Rule is MineRule mineRule) 
                 {
                     this.Rule = mineRule;
-                    
-                    this.Square = mineRule.Size;
+                    Debug.Log(value);
+                    this._MineArea.Square = mineRule.Size;
                 }
             }
         }
 
+        private MineQuestSeries _DemoQuestSeries;
+
         public MineRule Rule { get; private set; }
-
-        private Vector2Int _Square;
-
-        public Vector2Int Square 
-        { 
-            get => this._Square;
-
-            private set 
-            {
-                this._Square = value;
-
-                this._GridLayoutGroup.constraintCount = value.x;
-            } 
-        }
-
-        public MineButton this[int x, int y] => this._MineButtons[LocateToIndex(new Vector2Int(x, y))];
-        public MineButton this[Vector2Int locate] => this._MineButtons[LocateToIndex(locate)];
 
         #endregion
 
@@ -109,12 +89,7 @@ namespace QuestDemo
         private void Awake()
         {
             Demo = this;
-
-            this._MineButtons = new List<MineButton>();
-
-            this._MineButtons.Clear();
-            this._MineButtons.AddRange(this._Content.GetComponentsInChildren<MineButton>());
-
+            
             ImageDetail = this._ImageDetail;
         }
 
@@ -127,6 +102,8 @@ namespace QuestDemo
             this._ResultMessage["Previous"].ClickEvent += this.PreviousQuest;
             this._ResultMessage["Restart"].ClickEvent += this.RestartQuest;
             this._ResultMessage["Next"].ClickEvent += this.NextQuest;
+
+            this._DemoQuestChapter.Reset();
 
             this.NextQuest();
         }
@@ -149,8 +126,45 @@ namespace QuestDemo
             this.Quest.Initialize();
         }
 
-        public void PreviousQuest() => this.StartQuest(this._DemoQuestSeries.QuestGetter.Previous);
-        public void NextQuest() => this.StartQuest(this._DemoQuestSeries.QuestGetter.Next);
+        public void PreviousQuest()
+        {
+            if (this._DemoQuestChapter.IsFirst && this._DemoQuestSeries.IsFirst) { return; }
+
+            var quest = default(IQuest);
+
+            if (this._DemoQuestSeries.IsFirst)
+            {
+                this._DemoQuestChapter.MovePrevious();
+
+                this._DemoQuestSeries = this._DemoQuestChapter.Current as MineQuestSeries;
+
+                quest = this._DemoQuestSeries.Current;
+            }
+            else
+            {
+                quest = this._DemoQuestSeries.Previous;
+            }
+
+            this.StartQuest(quest);
+        }
+
+        public void NextQuest()
+        {
+            if (this._DemoQuestChapter.IsLast && this._DemoQuestSeries.IsLast) { return; }
+
+            var quest = default(IQuest);
+
+            if (this._DemoQuestSeries == null || this._DemoQuestSeries.IsLast)
+            {
+                this._DemoQuestChapter.MoveNext();
+
+                this._DemoQuestSeries = this._DemoQuestChapter.Current as MineQuestSeries;
+            }
+            
+            quest = this._DemoQuestSeries.Next; 
+
+            this.StartQuest(quest);
+        }
         public void RestartQuest() => this.StartQuest(this.Quest);
 
         public void StartQuest(IQuest quest) 
@@ -158,7 +172,7 @@ namespace QuestDemo
             if (quest != null)
             {
                 this.SetQuest(quest);
-
+            
                 this.GameStart();
             }
         }
@@ -167,25 +181,9 @@ namespace QuestDemo
         {
             var map = this.Rule.CreateMap(this.Rule.MineCount);
 
-            this.Square = this.Rule.Size;
-
             this._MineCount.SetText(string.Format("{0}", this.Rule.FakeMineCount));
 
-            var c = 0;
-            this._MineButtons.ForEach(space =>
-            {
-                if (c < map.Count)
-                {
-                    space.Reset();
-                    space.IsMine = map[c] == EMineMap.Mine;
-                    
-                    this.SetSquare(c, space);
-                }
-                
-                else { space.gameObject.SetActive(false); }
-
-                c++;
-            });
+            this._MineArea.SetMine(map);
 
             CheckType = EMineMap.Space;
 
@@ -194,80 +192,25 @@ namespace QuestDemo
 
         public void CheckRule(MapVariation variation) 
         {
-            var mineCount = this.Rule.MineCount;
+            var quest = this._Quest as MineQuest;
             var result = this.Rule.CheckRule(variation);
 
             this._MineCount.SetText(string.Format("{0}", this.Rule.FakeMineCount));
 
-            var failed = result.HasFlag(IRule.EProgress.Failed);
-            var fulfilled = result.HasFlag(IRule.EProgress.FulFilled);
+            if (quest.IsFailed) { this._MineArea.ShowMine(); }
 
-            if (failed) { this._MineButtons.ForEach(f => f.ShowMine()); }
-
-            if (fulfilled || failed) 
+            if (quest.IsClear || quest.IsFailed) 
             {
                 this._Quest.End();
-                
-                var isFirst = this._DemoQuestSeries.QuestGetter.IsFirst;
-                var isLast = this._DemoQuestSeries.QuestGetter.IsLast;
+
+                var isFirst = this._DemoQuestChapter.IsFirst && this._DemoQuestSeries.IsFirst;
+                var isLast = this._DemoQuestChapter.IsLast && this._DemoQuestSeries.IsLast;
 
                 this._ResultMessage["Previous"].Interactable = !isFirst;
-                this._ResultMessage["Next"].Interactable = !isLast && fulfilled;
+                this._ResultMessage["Next"].Interactable = !isLast && quest.HasCleared;
 
                 OnQuestEnd?.Invoke(this.Quest);
             }
-        }
-
-        #endregion
-
-        #region UI Map Setting
-
-        private void SetSquare(int index, MineButton mine) 
-        {
-            var sizeX = this.Square.x;
-            var sizeY = this.Square.y;
-            var locate = this.IndexToLocate(index);
-            var list = new List<MineButton>();
-
-            var locateList = new List<Vector2Int>
-            {
-                new Vector2Int(-1, -1),
-                new Vector2Int( 0, -1),
-                new Vector2Int( 1, -1),
-                new Vector2Int(-1,  0),
-                new Vector2Int( 1,  0),
-                new Vector2Int(-1,  1),
-                new Vector2Int( 0,  1),
-                new Vector2Int( 1,  1),
-            };
-
-            locateList.ForEach(l =>
-            {
-                var target = l + locate;
-
-                if (target.x < 0 || target.y < 0) { return; }
-                if (target.x >= sizeX || target.y >= sizeY) { return; }
-
-                list.Add(this[target]);
-            });
-
-            mine.Position = index;
-            mine.SetSquare(list);
-        }
-
-        private int LocateToIndex(Vector2Int vector) 
-        {
-            var v = Vector2Int.Min(vector, this.Square - Vector2Int.one);
-
-            return v.y * this.Square.x + v.x;
-        }
-
-        private Vector2Int IndexToLocate(int index) 
-        {
-            var x = index % this.Square.x;
-            var y = index / this.Square.x;
-
-            return Vector2Int.Min(new Vector2Int(x, y), this.Square - Vector2Int.one); 
         }
 
         #endregion

@@ -12,6 +12,7 @@ namespace Custom.Quest
 
         public abstract void Start();
         public abstract void Initialize();
+        public abstract void Reset();
         public abstract IRule.EProgress CheckRule(object value);
     }
 
@@ -21,6 +22,7 @@ namespace Custom.Quest
         
         public void Initialize();
         public void Start();
+        public void Reset();
         public EProgress CheckRule(object value);
 
         [Serializable]

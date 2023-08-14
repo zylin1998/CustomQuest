@@ -1558,6 +1558,7 @@ GameObject:
   - component: {fileID: 67077041}
   - component: {fileID: 67077040}
   - component: {fileID: 67077039}
+  - component: {fileID: 67077042}
   m_Layer: 5
   m_Name: Panel_MineButtons
   m_TagString: Untagged
@@ -2123,6 +2124,21 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 67077037}
   m_CullTransparentMesh: 1
+--- !u!114 &67077042
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 67077037}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 01e516da6c8f6ca449b5bcbb47d7afff, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _Content: {fileID: 67077038}
+  _GridLayoutGroup: {fileID: 67077039}
+  _MineButtons: []
 --- !u!1001 &68207499
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -19823,16 +19839,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: db4724d380a4d024f8e0063601f66fff, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _Content: {fileID: 67077038}
-  _GridLayoutGroup: {fileID: 67077039}
-  _DemoQuestSeries: {fileID: 11400000, guid: f3bd4f18a8f7a384897543e577102859, type: 2}
+  _DemoQuestChapter: {fileID: 11400000, guid: 5aa599353dbfd2043a0b2957d8696c07, type: 2}
+  _MineArea: {fileID: 67077042}
   _ResultMessage: {fileID: 655748360}
   _MineCount: {fileID: 198312170}
   _ImageDetail:
     _Ground: {fileID: 10907, guid: 0000000000000000f000000000000000, type: 0}
     _Mine: {fileID: 21300000, guid: a3ced8f7044b9de4787602a9e9b20ea7, type: 3}
     _Flag: {fileID: 21300000, guid: 4a231ba0e81e63849a8f985c228e8acd, type: 3}
-  _MineButtons: []
 --- !u!1001 &791748220
 PrefabInstance:
   m_ObjectHideFlags: 0

@@ -1,0 +1,21 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7ecbb28ad9a763f48b3862be06cfba8c, type: 3}
+  m_Name: MineQuest Series 4
+  m_EditorClassIdentifier: 
+  _Quests:
+  - {fileID: 11400000, guid: e93cbe842339e6049b0af64d6edfe373, type: 2}
+  - {fileID: 11400000, guid: 1de25062657237f4a91ac0e95bff932a, type: 2}
+  - {fileID: 11400000, guid: ae3711b34ef06294d8f209702b4d6cde, type: 2}
+  - {fileID: 11400000, guid: 84aee373a0bcb7d41b37e6a094137109, type: 2}
+  - {fileID: 11400000, guid: f0b2764c3a466b840bbe773f35fdf1eb, type: 2}
+  - {fileID: 11400000, guid: e9772f6a9602e5b48a35d8afc55d2eca, type: 2}

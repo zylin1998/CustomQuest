@@ -17,37 +17,20 @@ namespace QuestDemo
 
         public TimeDisplay PassTime => new TimeDisplay(this._PassTime);
 
-        public Timer() : base()
-        {
-            this.Elapsed += this.Adding;
-        }
+        public Timer() : base() => this.Elapsed += this.Adding;
+        public Timer(double interval) : base(interval) => this.Elapsed += this.Adding;
 
-        public Timer(double interval) : base(interval)
-        {
-            this.Elapsed += this.Adding;
-        }
-
-        public void Adding(object sender, System.Timers.ElapsedEventArgs e)
-        {
-            this._PassTime += this.Interval;
-        }
+        public void Adding(object sender, System.Timers.ElapsedEventArgs e) => this._PassTime += this.Interval;
 
         public void Initialize()
         {
             this._PassTime = 0f;
-        }
-
-        public void Invoke()
-        {
             this.Interval = this._Interval;
-            
-            this.Start();
         }
 
-        public void EndInvoke()
-        {
-            this.Stop();
-        }
+        public void Invoke() => this.Start();
+        public void EndInvoke() => this.Stop();
+        public void Reset() => this.Initialize();
     }
 
     [Serializable]

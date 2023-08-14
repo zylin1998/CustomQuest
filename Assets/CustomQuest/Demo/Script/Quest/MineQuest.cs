@@ -16,6 +16,9 @@ namespace QuestDemo
 
         public IRule Rule => this._Rule;
         public IReward Reward => null;
+        public bool IsFailed => this.Rule.Progress.HasFlag(IRule.EProgress.Failed);
+        public bool IsClear => this.Rule.Progress.HasFlag(IRule.EProgress.FulFilled);
+        public bool HasCleared => this._Rule.HasCleared;
 
         public IQuest Initialize() 
         {
@@ -38,6 +41,15 @@ namespace QuestDemo
         public IQuest End() 
         {
             this.ToList().ForEach(f => f.EndInvoke());
+
+            return this;
+        }
+
+        public IQuest Reset() 
+        {
+            this._Rule.Reset();
+
+            this.ToList().ForEach(f => f.Reset());
 
             return this;
         }

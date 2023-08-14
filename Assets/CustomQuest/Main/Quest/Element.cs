@@ -11,14 +11,14 @@ namespace Custom.Quest
         public abstract void Initialize();
         public abstract void Invoke();
         public abstract void EndInvoke();
+        public abstract void Reset();
     }
 
     public interface IElement 
     {
         public void Initialize();
-
         public void Invoke();
-
         public void EndInvoke();
+        public void Reset();
     }
 }

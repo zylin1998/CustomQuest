@@ -1,0 +1,26 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 55d9a679f5c24eb418daaab411c7ad79, type: 3}
+  m_Name: MineQuest Chapter
+  m_EditorClassIdentifier: 
+  _QuestSeries:
+  - {fileID: 11400000, guid: f3bd4f18a8f7a384897543e577102859, type: 2}
+  - {fileID: 11400000, guid: 8741d236aee0d534d9b6dc8347b056e3, type: 2}
+  - {fileID: 11400000, guid: d2fe81824fa127d49b716d7c012c3356, type: 2}
+  - {fileID: 11400000, guid: 3a3f309d75ad90b4c9fe110cec9b39c5, type: 2}
+  - {fileID: 11400000, guid: e3bbbf5de6e1d91408b0fec19eb126a8, type: 2}
+  - {fileID: 11400000, guid: eda09485b8800bf43a5f35fb5ab17736, type: 2}
+  - {fileID: 11400000, guid: f359e2ede24b1224abc3d9358c76e2b9, type: 2}
+  - {fileID: 11400000, guid: fe325c0e2f5dc534caff25ab125f1ca0, type: 2}
+  - {fileID: 11400000, guid: 3aba554fcfa9c874193399d71d319dad, type: 2}
+  - {fileID: 11400000, guid: 470190eb4af61c744aed53afab6d7853, type: 2}
+  - {fileID: 11400000, guid: 73c0ffea86377c843b05aef15ae9dc17, type: 2}

@@ -5,7 +5,6 @@ using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.EventSystems;
 using TMPro;
-using Custom.Quest;
 
 namespace QuestDemo
 {
@@ -50,9 +49,9 @@ namespace QuestDemo
             this._Square.AddRange(mineButtons);
         }
 
-        public int DetectedMine() 
+        private int DetectedMine() 
         {
-            if (this.IsDetected || this.IsFlag) { return 0;  }
+            if (this.IsDetected) { return 0;  }
 
             this.IsDetected = true;
 
@@ -73,6 +72,25 @@ namespace QuestDemo
             return -1;
         }
 
+        private int SetFlag() 
+        {
+            if (!IsDetected)
+            {
+                var sprite = this.IsFlag ? QuestDemo.ImageDetail.Ground : QuestDemo.ImageDetail.Flag;
+
+                this.SetImage(sprite, ImageDetail.Normal);
+
+                var isFlag = this.IsFlag ? -1 : 1;
+
+                this.IsFlag = !this.IsFlag;
+
+                return isFlag;
+            }
+
+            return 0;
+        }
+
+
         public void ShowMine() 
         {
             var sprite = this.IsMine ? QuestDemo.ImageDetail.Mine : null;
@@ -82,10 +100,7 @@ namespace QuestDemo
             {
                 var mineCount = this._Square.Count(c => c.IsMine);
 
-                if (mineCount > 0)
-                {
-                    this._MineNumber.SetText(string.Format("{0}", mineCount));
-                }
+                this._MineNumber.SetText(string.Format("{0}", mineCount > 0 ? mineCount : ""));
             }
 
             this.SetImage(sprite, color);
@@ -125,31 +140,18 @@ namespace QuestDemo
         {
             if (QuestDemo.CheckType == EMineMap.Flag) 
             {
-                if (!this.IsFlag && !IsDetected)
-                {
-                    this.IsFlag = true;
+                var setFlag = this.SetFlag();
 
-                    this.SetImage(QuestDemo.ImageDetail.Flag, ImageDetail.Normal);
-
-                    OnDetected.Invoke(new MapVariation(1, this.Position, EMineMap.Flag));
-                }
+                OnDetected.Invoke(new MapVariation(setFlag, this.Position, EMineMap.Flag));
             }
 
             if (QuestDemo.CheckType == EMineMap.Space) 
             {
-                this.IsFlag = false;
-
                 var detected = this.DetectedMine();
 
-                if (detected > 0)
-                {
-                    OnDetected.Invoke(new MapVariation(detected, this.Position, EMineMap.Space));
-                }
+                var mineMap = detected >= 0 ? EMineMap.Space : EMineMap.Mine;
 
-                if (detected < 0) 
-                {
-                    OnDetected.Invoke(new MapVariation(detected, this.Position, EMineMap.Mine));
-                }
+                OnDetected.Invoke(new MapVariation(detected, this.Position, mineMap));
             }
         }
 
