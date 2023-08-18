@@ -13,7 +13,7 @@ namespace Custom.Quest
         public abstract void Start();
         public abstract void Initialize();
         public abstract void Reset();
-        public abstract IRule.EProgress CheckRule(object value);
+        public abstract IRule.EProgress CheckRule(QuestArgs args);
     }
 
     public interface IRule 
@@ -23,7 +23,7 @@ namespace Custom.Quest
         public void Initialize();
         public void Start();
         public void Reset();
-        public EProgress CheckRule(object value);
+        public EProgress CheckRule(QuestArgs args);
 
         [Serializable]
         public enum EProgress
@@ -34,5 +34,10 @@ namespace Custom.Quest
             FulFilled,
             Failed
         }
+    }
+
+    public class QuestArgs : EventArgs 
+    {
+
     }
 }

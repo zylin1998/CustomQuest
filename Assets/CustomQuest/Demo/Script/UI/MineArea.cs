@@ -40,11 +40,6 @@ namespace QuestDemo
             this._MineButtons.AddRange(this._Content.GetComponentsInChildren<MineButton>());
         }
 
-        private void Start()
-        {
-            
-        }
-
         #region UI Map Setting
 
         public void SetMine(IEnumerable<EMineMap> mineMap) 
@@ -56,7 +51,7 @@ namespace QuestDemo
             {
                 if (c < map.Count)
                 {
-                    space.Reset();
+                    MineButton.Reset(space);
                     space.IsMine = map[c] == EMineMap.Mine;
 
                     this.SetSquare(c, space);
@@ -70,10 +65,10 @@ namespace QuestDemo
 
         public void ShowMine() 
         {
-            this._MineButtons.ForEach(f => f.ShowMine());
+            this._MineButtons.ForEach(f => MineButton.ShowMine(f));
         }
 
-        public void SetSquare(int index, MineButton mine)
+        private void SetSquare(int index, MineButton mine)
         {
             var sizeX = this.Square.x;
             var sizeY = this.Square.y;
@@ -103,7 +98,8 @@ namespace QuestDemo
             });
 
             mine.Position = index;
-            mine.SetSquare(list);
+
+            MineButton.SetSquare(mine, list);
         }
 
         private int LocateToIndex(Vector2Int vector)

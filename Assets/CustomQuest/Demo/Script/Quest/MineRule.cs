@@ -59,79 +59,77 @@ namespace QuestDemo
             this.Initialize();
         }
 
-        public IRule.EProgress CheckRule(object value)
+        public IRule.EProgress CheckRule(QuestArgs args)
         {
-            if (value is MapVariation variation) { return this.CheckRule(variation); }
+            if (args is MapArgs mapArgs) { return CheckRule(this, mapArgs); }
 
             return this._Progress;
         }
 
-        public IRule.EProgress CheckRule(MapVariation variation) 
+        public static IRule.EProgress CheckRule(MineRule rule, MapArgs args) 
         {
-            if (variation.MineMap == EMineMap.Flag ) 
-            {
-                if (variation.Count > 0) { this._FlagPositions.Add(variation.Position); }
+            if (args.MineMap == EMineMap.Flag ) { CheckFlag(rule, args); }
 
-                if (variation.Count < 0) { this._FlagPositions.Remove(variation.Position); }
+            if (args.MineMap == EMineMap.Space && args.Count > 0)  { CheckSpace(rule, args); }
 
-                this._Progress = this.CheckFlagPosi() ? IRule.EProgress.FulFilled : IRule.EProgress.Progress;
-            }
+            if (args.MineMap == EMineMap.Mine) { rule._Progress = IRule.EProgress.Failed; }
 
-            if (variation.MineMap == EMineMap.Space) 
-            {
-                this.SpaceLeft -= variation.Count;
+            if (!rule.HasCleared) { rule.HasCleared = rule._Progress.HasFlag(IRule.EProgress.FulFilled); }
 
-                if (this._FlagPositions.Exists(e => e == variation.Position)) 
-                {
-                    this._FlagPositions.Remove(variation.Position); 
-                }
-
-                this._Progress = this.SpaceLeft <= 0 ? IRule.EProgress.FulFilled : IRule.EProgress.Progress;
-            }
-
-            if (variation.MineMap == EMineMap.Mine) 
-            {
-                this._Progress = IRule.EProgress.Failed;
-            }
-
-            if (!this.HasCleared)
-            {
-                this.HasCleared = this._Progress.HasFlag(IRule.EProgress.FulFilled);
-            }
-
-            return this._Progress;
+            return rule._Progress;
         }
 
-        private bool CheckFlagPosi() 
+        private static void CheckFlag(MineRule rule, MapArgs args) 
         {
-            if (this._FlagPositions.Count > this._MineCount) { return false; }
+            if (args.Count > 0) { rule._FlagPositions.Add(args.Position); }
 
-            if (this._FlagPositions.Count(c => this._Map[c] == EMineMap.Mine) == this._MineCount) { return true; }
+            if (args.Count < 0) { rule._FlagPositions.Remove(args.Position); }
+            
+            rule._Progress = CheckFlagPosi(rule) ? IRule.EProgress.FulFilled : IRule.EProgress.Progress;
+        }
+
+        private static void CheckSpace(MineRule rule, MapArgs args) 
+        {
+            rule.SpaceLeft -= args.Count;
+
+            if (rule._FlagPositions.Exists(e => e == args.Position))
+            {
+                rule._FlagPositions.Remove(args.Position);
+            }
+
+            rule._Progress = rule.SpaceLeft <= 0 ? IRule.EProgress.FulFilled : IRule.EProgress.Progress;
+        }
+
+        private static bool CheckFlagPosi(MineRule rule) 
+        {
+            if (rule._FlagPositions.Count > rule._MineCount) { return false; }
+            
+            if (rule._FlagPositions.Count(c => rule._Map[c] == EMineMap.Mine) == rule._MineCount) { return true; }
 
             return false;
         }
 
-        public List<EMineMap> CreateMap(int mineCount)
+        public static List<EMineMap> CreateMap(MineRule rule)
         {
-            var length = this._Column * this._Row;
+            var length = rule._Column * rule._Row;
 
-            this._Map.Clear();
+            rule._Map.Clear();
 
-            for (var i = 0; i < length; i++) { this._Map.Add(EMineMap.Space); }
+            for (var i = 0; i < length; i++) { rule._Map.Add(EMineMap.Space); }
 
-            for (var count = mineCount; count > 0;)
+            for (var count = rule.MineCount; count > 0;)
             {
                 var locate = Mathf.RoundToInt(UnityEngine.Random.Range(0, length - 1));
 
-                if (this._Map[locate] == EMineMap.Space)
+                if (rule._Map[locate] == EMineMap.Space)
                 {
-                    this._Map[locate] = EMineMap.Mine;
+                    rule._Map[locate] = EMineMap.Mine;
 
                     count--;
                 }
             }
-
-            return this._Map;
+            
+            return rule._Map;
         }
     }
     
@@ -145,13 +143,13 @@ namespace QuestDemo
     }
 
     [Serializable]
-    public struct MapVariation
+    public class MapArgs : QuestArgs
     {
         public int Count { get; }
         public EMineMap MineMap { get; }
         public int Position { get; }
 
-        public MapVariation(int count, int position, EMineMap mineMap) 
+        public MapArgs(int count, int position, EMineMap mineMap) 
             => (this.Count, this.Position, this.MineMap) = (count, position, mineMap);
     }
 }

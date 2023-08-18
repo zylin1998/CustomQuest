@@ -17,6 +17,17 @@ namespace QuestDemo
 
         public QuestButton this[string name] => this._QuestButtons.Find(f => f.Name == name);
 
+        public static QuestButton Previous { get; private set; }
+        public static QuestButton Restart { get; private set; }
+        public static QuestButton Next { get; private set; }
+
+        private void Awake()
+        {
+            Previous = this["Previous"];
+            Restart = this["Restart"];
+            Next = this["Next"];
+        }
+
         private void Start()
         {
             QuestDemo.QuestEndEvent += this.ShowMessage;

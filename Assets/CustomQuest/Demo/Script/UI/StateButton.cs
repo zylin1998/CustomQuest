@@ -6,7 +6,7 @@ using UnityEngine.EventSystems;
 
 namespace QuestDemo
 {
-    public class StateButton : MonoBehaviour, IPointerDownHandler, IPointerClickHandler
+    public class StateButton : MonoBehaviour, IPointerDownHandler, IPointerUpHandler, IPointerClickHandler
     {
         [SerializeField]
         private EMineMap _CheckType;
@@ -23,20 +23,26 @@ namespace QuestDemo
             {
                 var color = this._CheckType != type ? ImageDetail.Normal : ImageDetail.PointerDown;
 
-                this.SetColor(color);
+                ImageDetail.SetImage(this._BackgroundImage, color);
             };
         }
 
         private void Start()
         {
-            this.Sprite = this._CheckType == EMineMap.Flag ? QuestDemo.ImageDetail.Flag : QuestDemo.ImageDetail.Mine;
+            this.Sprite = this._CheckType == EMineMap.Flag ? QuestDemoUI.ImageDetail.Flag : QuestDemoUI.ImageDetail.Mine;
 
             this._TypeImage.sprite = this.Sprite;
         }
 
-        public void OnPointerDown(PointerEventData eventData) => this.SetColor(ImageDetail.PointerDown);
-        public void OnPointerClick(PointerEventData eventData)  => QuestDemo.CheckType = this._CheckType;
+        public void OnPointerDown(PointerEventData eventData) => ImageDetail.SetImage(this._BackgroundImage, ImageDetail.PointerDown);
+        
+        public void OnPointerUp(PointerEventData eventData)
+        {
+            if (QuestDemo.CheckType == this._CheckType) { return; }
 
-        private void SetColor(Color color) => this._BackgroundImage.color = color;
+            ImageDetail.SetImage(this._BackgroundImage, ImageDetail.Normal);
+        }
+
+        public void OnPointerClick(PointerEventData eventData)  => QuestDemo.CheckType = this._CheckType;
     }
 }

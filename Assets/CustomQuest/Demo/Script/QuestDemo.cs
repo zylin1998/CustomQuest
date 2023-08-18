@@ -2,6 +2,7 @@ using System.Linq;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 using Custom.Quest;
 using TMPro;
 
@@ -12,14 +13,8 @@ namespace QuestDemo
         [SerializeField]
         private MineChapter _DemoQuestChapter;
         [SerializeField]
-        private MineArea _MineArea;
-        [SerializeField]
-        private ResultMessage _ResultMessage;
-        [SerializeField]
-        private TextMeshProUGUI _MineCount;
-        [SerializeField]
-        private ImageDetail _ImageDetail;
-
+        private QuestDemoUI _QuestDemoUI;
+        
         #region Properties
         
         private IQuest _Quest;
@@ -31,13 +26,20 @@ namespace QuestDemo
             private set 
             {
                 this._Quest = value;
-
-                if (value.Rule is MineRule mineRule) 
+                
+                if (this._Quest.Initialize().Rule is MineRule mineRule) 
                 {
                     this.Rule = mineRule;
-                    Debug.Log(value);
-                    this._MineArea.Square = mineRule.Size;
+                    
+                    var size = mineRule.Size;
+                    var map = MineRule.CreateMap(mineRule);
+
+                    this._QuestDemoUI.SetMineMap(new MineMapArgs(size, map));
                 }
+
+                var coordinate = this._DemoQuestChapter.Coordinate;
+
+                this._QuestDemoUI.SetQuestDetail(new QuestDetailArgs(coordinate));
             }
         }
 
@@ -48,9 +50,6 @@ namespace QuestDemo
         #endregion
 
         #region Static Properties
-
-        public static ImageDetail ImageDetail { get; private set; }
-        public static QuestDemo Demo { get; private set; }
 
         private static EMineMap _CheckType;
 
@@ -86,22 +85,15 @@ namespace QuestDemo
 
         #endregion
 
-        private void Awake()
-        {
-            Demo = this;
-            
-            ImageDetail = this._ImageDetail;
-        }
-
         #region Script Behaviour
 
         private void Start()
         {
             MineButton.DetectedEvent += this.CheckRule;
 
-            this._ResultMessage["Previous"].ClickEvent += this.PreviousQuest;
-            this._ResultMessage["Restart"].ClickEvent += this.RestartQuest;
-            this._ResultMessage["Next"].ClickEvent += this.NextQuest;
+            ResultMessage.Previous.ClickEvent += this.PreviousQuest;
+            ResultMessage.Restart.ClickEvent += this.RestartQuest;
+            ResultMessage.Next.ClickEvent += this.NextQuest;
 
             this._DemoQuestChapter.Reset();
 
@@ -110,21 +102,16 @@ namespace QuestDemo
 
         private void OnDestroy()
         {
-            Demo = null;
-            ImageDetail = default;
             MineButton.DetectedEvent -= this.CheckRule;
+
+            ResultMessage.Previous.ClickEvent -= this.PreviousQuest;
+            ResultMessage.Restart.ClickEvent -= this.RestartQuest;
+            ResultMessage.Next.ClickEvent -= this.NextQuest;
         }
 
         #endregion
 
         #region Quest Manage
-
-        public void SetQuest(IQuest quest) 
-        {
-            this.Quest = quest;
-
-            this.Quest.Initialize();
-        }
 
         public void PreviousQuest()
         {
@@ -136,7 +123,8 @@ namespace QuestDemo
             {
                 this._DemoQuestChapter.MovePrevious();
 
-                this._DemoQuestSeries = this._DemoQuestChapter.Current as MineQuestSeries;
+                this._DemoQuestSeries = this._DemoQuestChapter.Initialize().Current;
+                this._DemoQuestSeries.SetFlagToLast();
 
                 quest = this._DemoQuestSeries.Current;
             }
@@ -158,20 +146,22 @@ namespace QuestDemo
             {
                 this._DemoQuestChapter.MoveNext();
 
-                this._DemoQuestSeries = this._DemoQuestChapter.Current as MineQuestSeries;
+                this._DemoQuestSeries = this._DemoQuestChapter.Initialize().Current;
+                this._DemoQuestSeries.SetFlagToFirst();
             }
             
             quest = this._DemoQuestSeries.Next; 
 
             this.StartQuest(quest);
         }
+
         public void RestartQuest() => this.StartQuest(this.Quest);
 
         public void StartQuest(IQuest quest) 
         {
             if (quest != null)
             {
-                this.SetQuest(quest);
+                this.Quest = quest;
             
                 this.GameStart();
             }
@@ -179,36 +169,25 @@ namespace QuestDemo
 
         public void GameStart() 
         {
-            var map = this.Rule.CreateMap(this.Rule.MineCount);
-
-            this._MineCount.SetText(string.Format("{0}", this.Rule.FakeMineCount));
-
-            this._MineArea.SetMine(map);
+            this.CheckRule(new MapArgs(0, 0, EMineMap.None));
 
             CheckType = EMineMap.Space;
 
             this.Quest.Start();
         }
 
-        public void CheckRule(MapVariation variation) 
+        public void CheckRule(MapArgs variation) 
         {
-            var quest = this._Quest as MineQuest;
             var result = this.Rule.CheckRule(variation);
+            var quest = this._Quest as MineQuest;
+            var isFirst = this._DemoQuestChapter.IsFirst && this._DemoQuestSeries.IsFirst;
+            var isLast = this._DemoQuestChapter.IsLast && this._DemoQuestSeries.IsLast;
+            var fakeMineCount = this.Rule.FakeMineCount;
 
-            this._MineCount.SetText(string.Format("{0}", this.Rule.FakeMineCount));
-
-            if (quest.IsFailed) { this._MineArea.ShowMine(); }
+            this._QuestDemoUI.SetResult(new RuleResultArgs(fakeMineCount, result, quest, isFirst, isLast));
 
             if (quest.IsClear || quest.IsFailed) 
             {
-                this._Quest.End();
-
-                var isFirst = this._DemoQuestChapter.IsFirst && this._DemoQuestSeries.IsFirst;
-                var isLast = this._DemoQuestChapter.IsLast && this._DemoQuestSeries.IsLast;
-
-                this._ResultMessage["Previous"].Interactable = !isFirst;
-                this._ResultMessage["Next"].Interactable = !isLast && quest.HasCleared;
-
                 OnQuestEnd?.Invoke(this.Quest);
             }
         }

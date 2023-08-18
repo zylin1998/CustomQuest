@@ -17,6 +17,8 @@ namespace Custom.Quest
         public IRule Rule => this._Rule;
         public IReward Reward => this._Reward;
         public bool IsClear => this.Rule.Progress.HasFlag(IRule.EProgress.FulFilled);
+        public bool HasCleared { get; protected set; }
+
 
         public abstract IQuest Initialize();
         public abstract IQuest Start();
@@ -32,6 +34,7 @@ namespace Custom.Quest
     {
         public IReward Reward { get; }
         public IRule Rule { get; }
+        public bool HasCleared { get; }
 
         public IQuest Initialize();
         public IQuest Start();
