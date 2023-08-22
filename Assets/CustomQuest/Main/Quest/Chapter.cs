@@ -42,7 +42,6 @@ namespace Custom.Quest
         public void SetFlagToFirst() => this.SetFlag(-1);
         public void SetFlagToLast() => this.SetFlag(this._QuestSeries.Count - 1);
 
-
         public virtual IQuestSeries<TQuestSeries> Initialize() 
         {
             this._QuestSeries.ForEach(f => f.Initialize());

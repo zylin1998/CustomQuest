@@ -2,9 +2,7 @@ using System.Linq;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.UI;
 using Custom.Quest;
-using TMPro;
 
 namespace QuestDemo
 {
@@ -29,8 +27,6 @@ namespace QuestDemo
                 
                 if (this._Quest.Initialize().Rule is MineRule mineRule) 
                 {
-                    this.Rule = mineRule;
-                    
                     var size = mineRule.Size;
                     var map = MineRule.CreateMap(mineRule);
 
@@ -42,10 +38,6 @@ namespace QuestDemo
                 this._QuestDemoUI.SetQuestDetail(new QuestDetailArgs(coordinate));
             }
         }
-
-        private MineQuestSeries _DemoQuestSeries;
-
-        public MineRule Rule { get; private set; }
 
         #endregion
 
@@ -74,15 +66,6 @@ namespace QuestDemo
             remove => OnTypeChanged -= value;
         }
 
-        private static System.Action<IQuest> OnQuestEnd = (quest) => { };
-
-        public static event System.Action<IQuest> QuestEndEvent
-        {
-            add => OnQuestEnd += value;
-
-            remove => OnQuestEnd -= value;
-        }
-
         #endregion
 
         #region Script Behaviour
@@ -107,54 +90,16 @@ namespace QuestDemo
             ResultMessage.Previous.ClickEvent -= this.PreviousQuest;
             ResultMessage.Restart.ClickEvent -= this.RestartQuest;
             ResultMessage.Next.ClickEvent -= this.NextQuest;
+
+            OnTypeChanged = (type) => { };
         }
 
         #endregion
 
         #region Quest Manage
 
-        public void PreviousQuest()
-        {
-            if (this._DemoQuestChapter.IsFirst && this._DemoQuestSeries.IsFirst) { return; }
-
-            var quest = default(IQuest);
-
-            if (this._DemoQuestSeries.IsFirst)
-            {
-                this._DemoQuestChapter.MovePrevious();
-
-                this._DemoQuestSeries = this._DemoQuestChapter.Initialize().Current;
-                this._DemoQuestSeries.SetFlagToLast();
-
-                quest = this._DemoQuestSeries.Current;
-            }
-            else
-            {
-                quest = this._DemoQuestSeries.Previous;
-            }
-
-            this.StartQuest(quest);
-        }
-
-        public void NextQuest()
-        {
-            if (this._DemoQuestChapter.IsLast && this._DemoQuestSeries.IsLast) { return; }
-
-            var quest = default(IQuest);
-
-            if (this._DemoQuestSeries == null || this._DemoQuestSeries.IsLast)
-            {
-                this._DemoQuestChapter.MoveNext();
-
-                this._DemoQuestSeries = this._DemoQuestChapter.Initialize().Current;
-                this._DemoQuestSeries.SetFlagToFirst();
-            }
-            
-            quest = this._DemoQuestSeries.Next; 
-
-            this.StartQuest(quest);
-        }
-
+        public void PreviousQuest() => this.StartQuest(this._DemoQuestChapter.PreviousQuest);
+        public void NextQuest() => this.StartQuest(this._DemoQuestChapter.NextQuest);
         public void RestartQuest() => this.StartQuest(this.Quest);
 
         public void StartQuest(IQuest quest) 
@@ -178,18 +123,14 @@ namespace QuestDemo
 
         public void CheckRule(MapArgs variation) 
         {
-            var result = this.Rule.CheckRule(variation);
             var quest = this._Quest as MineQuest;
-            var isFirst = this._DemoQuestChapter.IsFirst && this._DemoQuestSeries.IsFirst;
-            var isLast = this._DemoQuestChapter.IsLast && this._DemoQuestSeries.IsLast;
-            var fakeMineCount = this.Rule.FakeMineCount;
-
-            this._QuestDemoUI.SetResult(new RuleResultArgs(fakeMineCount, result, quest, isFirst, isLast));
-
-            if (quest.IsClear || quest.IsFailed) 
-            {
-                OnQuestEnd?.Invoke(this.Quest);
-            }
+            var chapter = this._DemoQuestChapter;
+            
+            quest.Rule.CheckRule(variation);
+            
+            var resultArgs = new RuleResultArgs(quest, chapter);
+            
+            this._QuestDemoUI.SetResult(resultArgs);
         }
 
         #endregion

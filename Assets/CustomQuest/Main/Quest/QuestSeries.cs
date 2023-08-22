@@ -118,6 +118,8 @@ namespace Custom.Quest
         public Coordinate(int position) : this(new int[] { position }) { }
         public Coordinate(IEnumerable<int> positions) => this.Position = new List<int>(positions);
 
+        public int this[int index] => this.Position[index];
+
         public static Coordinate operator +(Coordinate first, Coordinate second)
         {
             first.Position.AddRange(second.Position);

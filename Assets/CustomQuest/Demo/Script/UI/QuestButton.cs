@@ -25,7 +25,7 @@ namespace QuestDemo
             { 
                 this._Interactable = value;
 
-                this.SetColor(value ? ImageDetail.Normal : ImageDetail.PointerDown);
+                ImageDetail.SetImage(this._Background, value ? ImageDetail.Normal : ImageDetail.PointerDown);
             }
         }
 
@@ -42,14 +42,14 @@ namespace QuestDemo
         {
             if (!Interactable) { return; }
 
-            this.SetColor(ImageDetail.PointerDown);
+            ImageDetail.SetImage(this._Background, ImageDetail.PointerDown);
         }
 
         public void OnPointerUp(PointerEventData eventData)
         {
             if (!Interactable) { return; }
 
-            this.SetColor(ImageDetail.Normal);
+            ImageDetail.SetImage(this._Background, ImageDetail.Normal);
         }
 
         public void OnPointerClick(PointerEventData eventData) 
@@ -57,11 +57,6 @@ namespace QuestDemo
             if (!Interactable) { return; }
 
             this.OnClick?.Invoke();
-        }
-
-        private void SetColor(Color color) 
-        {
-            this._Background.color = color;
         }
     }
 }

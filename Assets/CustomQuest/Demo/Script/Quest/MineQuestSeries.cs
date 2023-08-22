@@ -13,8 +13,8 @@ namespace QuestDemo
         public bool IsFirst => this.Flag <= 0;
         public bool IsLast => this.Flag >= this._Quests.Count - 1;
 
-        public IQuest Next => this.MoveNext() ? this.Current : this.Current;
-        public IQuest Previous => this.MovePrevious() ? this.Current : this.Current;
+        public IQuest Next => this.MoveNext() ? this.Current : null;
+        public IQuest Previous => this.MovePrevious() ? this.Current : null;
 
         public bool MovePrevious()
         {

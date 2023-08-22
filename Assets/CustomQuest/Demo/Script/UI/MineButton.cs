@@ -125,6 +125,33 @@ namespace QuestDemo
             mine.gameObject.SetActive(true);
         }
 
+        private static EMineMap CheckType(PointerEventData.InputButton button) 
+        {
+            if (button == PointerEventData.InputButton.Left) { return QuestDemo.CheckType; }
+            if (button == PointerEventData.InputButton.Right) { return EMineMap.Flag; }
+
+            return EMineMap.None;
+        }
+
+        private static void MineButtonEvent(MineButton mine, EMineMap checkType) 
+        {
+            if (checkType == EMineMap.Flag)
+            {
+                var setFlag = SetFlag(mine);
+
+                OnDetected.Invoke(new MapArgs(setFlag, mine.Position, EMineMap.Flag));
+            }
+
+            if (checkType == EMineMap.Space)
+            {
+                var detected = Detected(mine);
+
+                var mineMap = detected >= 0 ? EMineMap.Space : EMineMap.Mine;
+
+                OnDetected.Invoke(new MapArgs(detected, mine.Position, mineMap));
+            }
+        }
+
         #endregion
 
         #region Pointer Events
@@ -145,21 +172,9 @@ namespace QuestDemo
 
         public void OnPointerClick(PointerEventData eventData) 
         {
-            if (QuestDemo.CheckType == EMineMap.Flag) 
-            {
-                var setFlag = SetFlag(this);
+            var checkType = CheckType(eventData.button);
 
-                OnDetected.Invoke(new MapArgs(setFlag, this.Position, EMineMap.Flag));
-            }
-
-            if (QuestDemo.CheckType == EMineMap.Space) 
-            {
-                var detected = Detected(this);
-
-                var mineMap = detected >= 0 ? EMineMap.Space : EMineMap.Mine;
-
-                OnDetected.Invoke(new MapArgs(detected, this.Position, mineMap));
-            }
+            MineButtonEvent(this, checkType);
         }
 
         #endregion

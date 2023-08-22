@@ -30,23 +30,23 @@ namespace QuestDemo
 
         private void Start()
         {
-            QuestDemo.QuestEndEvent += this.ShowMessage;
-
             this._QuestButtons.ForEach(f => f.ClickEvent += () => this.gameObject.SetActive(false));
 
             this.gameObject.SetActive(false);
         }
 
-        public void ShowMessage(IQuest quest) 
+        public void ShowMessage(RuleResultArgs args) 
         {
-            var result = quest.Rule.Progress;
-            var passTime = quest.GetElement<Timer>().PassTime;
+            var passTime = (args.Quest as IQuest).GetElement<Timer>().PassTime;
 
-            var strResult = result == IRule.EProgress.FulFilled ? "Win" : "Lose";
-            var strPassTime = string.Format("{0, 2}:{1, 2}'{2,3}", passTime.Minute, passTime.Second, passTime.MiniSecond);
+            var strResult = args.Progress == IRule.EProgress.FulFilled ? "Win" : "Lose";
+            var strPassTime = string.Format("{0, 2}:{1, 2} {2,3}", passTime.Minute, passTime.Second, passTime.MiniSecond);
 
             this._ResultText.SetText(string.Format("{0}", strResult));
             this._PassTimeText.SetText(string.Format("{0}", strPassTime));
+
+            Previous.Interactable = !args.IsFront;
+            Next.Interactable = !args.IsBack && args.Quest.HasCleared;
 
             this.gameObject.SetActive(true);
         }

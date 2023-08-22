@@ -15,17 +15,22 @@ namespace QuestDemo
         [SerializeField]
         private ResultMessage _ResultMessage;
         [SerializeField]
+        private MissionPanel _MissionPanel;
+        [SerializeField]
         private TextMeshProUGUI _MineCount;
         [SerializeField]
         private TextMeshProUGUI _QuestDetail;
         [SerializeField]
         private ImageDetail _ImageDetail;
+        [SerializeField]
+        private MissionImageDetail _MissionImageDetail;
 
         public static ImageDetail ImageDetail { get; private set; }
 
         private void Awake()
         {
             ImageDetail = this._ImageDetail;
+            MissionImageDetail.Detail = this._MissionImageDetail;
         }
 
         private void OnDestroy()
@@ -54,8 +59,12 @@ namespace QuestDemo
             {
                 args.Quest.End();
 
-                this._ResultMessage["Previous"].Interactable = !args.IsFirst;
-                this._ResultMessage["Next"].Interactable = !args.IsLast && args.Quest.HasCleared;
+                this._ResultMessage.ShowMessage(args);
+
+                if (args.Quest.IsClear) 
+                {
+                    this._MissionPanel.CheckMission(new MineMissionArgs(args.Coordinate));
+                }
             }
         }
     }
@@ -113,14 +122,21 @@ namespace QuestDemo
 
     public class RuleResultArgs 
     {
+        public MineQuest Quest { get; }
         public int FakeMineCount { get; }
         public IRule.EProgress Progress { get; }
-        public MineQuest Quest { get; }
-        public bool IsFirst { get; }
-        public bool IsLast { get; }
+        public bool IsFront { get; }
+        public bool IsBack { get; }
+        public Coordinate Coordinate { get; }
 
-        public RuleResultArgs(int fakeMineCount, IRule.EProgress progress, MineQuest quest, bool isFirst, bool isLast)
-            => (this.FakeMineCount, this.Progress, this.Quest, this.IsFirst, this.IsLast) 
-             = (fakeMineCount, progress, quest, isFirst, isLast);
+        public RuleResultArgs(MineQuest quest, MineChapter chapter)
+        {
+            this.Quest = quest;
+            this.FakeMineCount = (quest.Rule as MineRule).FakeMineCount;
+            this.Progress = quest.Rule.Progress;
+            this.IsFront = chapter.IsFirst;
+            this.IsBack = chapter.IsBack;
+            this.Coordinate = chapter.Coordinate;
+        }
     }
 }

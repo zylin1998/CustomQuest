@@ -12,6 +12,47 @@ namespace QuestDemo
         public bool IsFirst => this.Flag <= 0;
         public bool IsLast => this.Flag >= this._QuestSeries.Count - 1;
 
+        public bool IsFront => this.IsFirst && this.Current.IsFirst;
+        public bool IsBack => this.IsLast && this.Current.IsLast;
+
+        public IQuest PreviousQuest
+        { 
+            get
+            {
+                if (this.Current.MovePrevious()) 
+                {
+                    return this.Current.Current;
+                }
+
+                if (this.MovePrevious()) 
+                {
+                    this.Current.Initialize().SetFlagToLast();
+
+                    return this.Current.Current;
+                }
+                
+                return null;
+            }
+        }
+
+        public IQuest NextQuest
+        {
+            get
+            {
+                if (this.MoveNext())
+                {
+                    this.Current.Initialize().SetFlagToFirst();
+                }
+
+                if (this.Current.MoveNext())
+                {
+                    return this.Current.Current;
+                }
+
+                return null;
+            }
+        }
+
         public bool MovePrevious()
         {
             if (this.Flag <= 0) { return false; }
