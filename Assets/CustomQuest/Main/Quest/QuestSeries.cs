@@ -47,6 +47,26 @@ namespace Custom.Quest
             return this;
         }
 
+        public virtual IQuestSeries<TQuest> Initialize(InitArgs args)
+        {
+            if (args is QuestsArgs inits)
+            {
+                var c = 0;
+                this._Quests.ForEach(f =>
+                {
+                    f.Initialize(inits[c]);
+
+                    c++;
+                });
+            }
+
+            return this;
+        }
+
+
+        IQuestSeries IInitialize<IQuestSeries>.Initialize() => this.Initialize();
+        IQuestSeries IInitialize<IQuestSeries>.Initialize(InitArgs args) => this.Initialize(args);
+
         public virtual IQuestSeries<TQuest> Reset()
         {
             this.Flag = -1;
@@ -88,7 +108,7 @@ namespace Custom.Quest
         #endregion
     }
 
-    public interface IQuestSeries : IEnumerator, IClear
+    public interface IQuestSeries : IEnumerator, IInitialize<IQuestSeries>, IClear
     {
         public int Flag { get; }
         public int Depth { get; }
@@ -98,17 +118,26 @@ namespace Custom.Quest
         public void SetFlagToFirst();
         public void SetFlagToLast();
 
-        public IQuestSeries Initialize();
         public new IQuestSeries Reset();
     }
 
-    public interface IQuestSeries<TClearable> : IQuestSeries, IEnumerator<TClearable> where TClearable : IClear
+    public interface IQuestSeries<TClearable> : IQuestSeries, IEnumerator<TClearable>, IInitialize<IQuestSeries<TClearable>> where TClearable : IClear
     {
-        public new IQuestSeries<TClearable> Initialize();
         public new IQuestSeries<TClearable> Reset();
 
-        IQuestSeries IQuestSeries.Initialize() => this.Initialize();
         IQuestSeries IQuestSeries.Reset() => this.Reset();
+    }
+
+    public class QuestsArgs : InitArgs
+    {
+        public List<QuestArgs> QuestInits { get; }
+
+        public QuestArgs this[int num] => num < this.QuestInits.Count ? this.QuestInits[num] : default;
+
+        public QuestsArgs(IEnumerable<QuestArgs> inits)
+        {
+            this.QuestInits = inits.ToList();
+        }
     }
 
     public struct Coordinate : IEnumerable<int>

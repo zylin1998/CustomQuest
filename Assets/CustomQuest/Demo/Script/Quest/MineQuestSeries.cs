@@ -7,7 +7,7 @@ using Custom.Quest;
 
 namespace QuestDemo
 {
-    [CreateAssetMenu(fileName = "MineQuest Series", menuName = "Quest Demo/Quest Series", order = 1)]
+    [CreateAssetMenu(fileName = "MineQuest Series", menuName = "Quest Demo/Quest/Quest Series", order = 1)]
     public class MineQuestSeries : QuestSeries<MineQuest>
     {
         public bool IsFirst => this.Flag <= 0;
@@ -23,16 +23,6 @@ namespace QuestDemo
             this.Flag--;
 
             return true;
-        }
-
-        public new MineQuestSeries Initialize() 
-        {
-            return base.Initialize() as MineQuestSeries;
-        }
-
-        public new MineQuestSeries Reset()
-        {
-            return base.Reset() as MineQuestSeries;
         }
     }
 }

@@ -49,6 +49,25 @@ namespace Custom.Quest
             return this;
         }
 
+        public virtual IQuestSeries<TQuestSeries> Initialize(InitArgs args)
+        {
+            if (args is SeriesArgs inits)
+            {
+                var c = 0;
+                this._QuestSeries.ForEach(f =>
+                {
+                    f.Initialize(inits[c]);
+
+                    c++;
+                });
+            }
+
+            return this;
+        }
+
+        IQuestSeries IInitialize<IQuestSeries>.Initialize() => this.Initialize();
+        IQuestSeries IInitialize<IQuestSeries>.Initialize(InitArgs args) => this.Initialize(args);
+
         public virtual IQuestSeries<TQuestSeries> Reset()
         {
             this.Flag = -1;
@@ -86,5 +105,17 @@ namespace Custom.Quest
         }
 
         #endregion
+    }
+
+    public class SeriesArgs : InitArgs
+    {
+        public List<QuestsArgs> QuestInits { get; }
+
+        public QuestsArgs this[int num] => num < this.QuestInits.Count ? this.QuestInits[num] : default;
+
+        public SeriesArgs(IEnumerable<QuestsArgs> inits)
+        {
+            this.QuestInits = inits.ToList();
+        }
     }
 }

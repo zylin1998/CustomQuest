@@ -12,59 +12,55 @@ namespace QuestDemo
         [SerializeField]
         private ScrollRect _ScrollRect;
         [SerializeField]
-        private MineMissionList _MissionList;
+        private MissionCollect _MissionCollect;
         [SerializeField]
         private Animator _Animator;
         [SerializeField]
         private List<MissionButton> _Buttons;
 
+        private bool _State = false;
+
         private void Awake()
         {
             this._Buttons = this._ScrollRect.content.GetComponentsInChildren<MissionButton>().ToList();
-
-            this._MissionList.Initialize();
+            
+            this._MissionCollect.Initialize();
         }
 
         private void Start()
         {
             MissionSwitch.ClickEvent += this.PanelState;
-            MissionButton.ClickEvent += this.EndMission;
+            MissionButton.ClickEvent += this.SetMission;
 
             this.SetMission();
         }
 
-        public void PanelState(bool state) 
+        public void PanelState() 
         {
-            var name = state ? "Open" : "Close";
+            this._State = !this._State;
 
-            if (state) { this._ScrollRect.verticalNormalizedPosition = 1; }
+            var name = this._State ? "Open" : "Close";
+
+            if (this._State) 
+            { 
+                this._ScrollRect.verticalNormalizedPosition = 1;
+            }
 
             this._Animator.Play(name);
         }
 
-        public void CheckMission(MineMissionArgs args) 
-        {
-            this._Buttons.ForEach(f => f.SetMission(args));
-        }
-
-        public void EndMission(MineMission mission) 
-        {
-            if (mission.Progress == IMission.EProgress.Complete) 
-            {
-                mission.End();
-
-                this.SetMission();
-            }
-        }
-
         public void SetMission() 
         {
-            var list = this._MissionList.ToList();
-
+            var list = this._MissionCollect.Missions;
+            
             var c = 0;
             this._Buttons.ForEach(f =>
             {
-                f.SetMission(list[c]);
+                f.gameObject.SetActive(true);
+                
+                if (c < list.Count) { f.SetMission(list[c]); }
+
+                else { f.gameObject.SetActive(false); }
 
                 c++;
             });

@@ -10,19 +10,19 @@ namespace Custom.Quest
     {
         public virtual IRule.EProgress Progress { get; }
 
-        public abstract void Start();
-        public abstract void Initialize();
-        public abstract void Reset();
+        public abstract IRule Start();
+        public abstract IRule Initialize();
+        public abstract IRule Initialize(InitArgs args);
+        public abstract IRule Reset();
         public abstract IRule.EProgress CheckRule(QuestArgs args);
     }
 
-    public interface IRule 
+    public interface IRule : IInitialize<IRule>
     {
         public EProgress Progress { get; }
         
-        public void Initialize();
-        public void Start();
-        public void Reset();
+        public IRule Start();
+        public IRule Reset();
         public EProgress CheckRule(QuestArgs args);
 
         [Serializable]
@@ -34,10 +34,5 @@ namespace Custom.Quest
             FulFilled,
             Failed
         }
-    }
-
-    public class QuestArgs : EventArgs 
-    {
-
     }
 }

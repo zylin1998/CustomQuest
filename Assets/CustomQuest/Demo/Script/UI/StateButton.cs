@@ -19,12 +19,7 @@ namespace QuestDemo
 
         private void Awake()
         {
-            QuestDemo.TypeChangedEvent += (type) =>
-            {
-                var color = this._CheckType != type ? ImageDetail.Normal : ImageDetail.PointerDown;
-
-                ImageDetail.SetImage(this._BackgroundImage, color);
-            };
+            IMine.TypeChangedEvent += this.OnTypeChanged;
         }
 
         private void Start()
@@ -34,15 +29,27 @@ namespace QuestDemo
             this._TypeImage.sprite = this.Sprite;
         }
 
+        private void OnDestroy()
+        {
+            IMine.TypeChangedEvent -= this.OnTypeChanged;
+        }
+
+        public void OnTypeChanged(EMineMap map) 
+        {
+            var color = this._CheckType != map ? ImageDetail.Normal : ImageDetail.PointerDown;
+
+            ImageDetail.SetImage(this._BackgroundImage, color);
+        }
+
         public void OnPointerDown(PointerEventData eventData) => ImageDetail.SetImage(this._BackgroundImage, ImageDetail.PointerDown);
         
         public void OnPointerUp(PointerEventData eventData)
         {
-            if (QuestDemo.CheckType == this._CheckType) { return; }
+            if (IMine.DetectedType == this._CheckType) { return; }
 
             ImageDetail.SetImage(this._BackgroundImage, ImageDetail.Normal);
         }
 
-        public void OnPointerClick(PointerEventData eventData)  => QuestDemo.CheckType = this._CheckType;
+        public void OnPointerClick(PointerEventData eventData)  => IMine.DetectedType = this._CheckType;
     }
 }

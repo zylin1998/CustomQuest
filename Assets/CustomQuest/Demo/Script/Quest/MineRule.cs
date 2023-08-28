@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Collections;
 using System.Collections.Generic;
+using Custom;
 using Custom.Quest;
 using UnityEngine;
 
@@ -31,32 +32,21 @@ namespace QuestDemo
 
         public bool HasCleared { get; private set; }
 
-        public void Initialize()
-        {
-            var sizeX = this._Column;
-            var sizeY = this._Row;
-            var length = sizeX * sizeY;
+        public IRule Initialize() => this.Initialize(new MapInitArgs(this._Column, this._Row, this._MineCount, this.HasCleared));
+        public IRule Initialize(InitArgs args) => args is MapInitArgs init ? RuleInit(this, init) : this;
 
-            if (length <= 0) { return; }
-            
-            this.SpaceLeft = length - this._MineCount;
-
-            this._Progress = IRule.EProgress.Start;
-
-            this._Map = new List<EMineMap>(length);
-            this._FlagPositions = new List<int>();
-        }
-
-        public void Start() 
+        public IRule Start() 
         {
             this._Progress = IRule.EProgress.Progress;
+            
+            return this;
         }
 
-        public void Reset() 
+        public IRule Reset() 
         {
             this.HasCleared = false;
 
-            this.Initialize();
+            return this.Initialize();
         }
 
         public IRule.EProgress CheckRule(QuestArgs args)
@@ -77,6 +67,28 @@ namespace QuestDemo
             if (!rule.HasCleared) { rule.HasCleared = rule._Progress.HasFlag(IRule.EProgress.FulFilled); }
 
             return rule._Progress;
+        }
+
+        public static IRule RuleInit(MineRule rule, MapInitArgs args) 
+        {
+            rule._Column = args.Column;
+            rule._Row = args.Row;
+            rule._MineCount = args.MineCount;
+
+            var sizeX = rule._Column;
+            var sizeY = rule._Row;
+            var length = sizeX * sizeY;
+
+            if (length <= 0) { return rule; }
+
+            rule.SpaceLeft = length - rule._MineCount;
+
+            rule._Progress = IRule.EProgress.Start;
+
+            rule._Map = new List<EMineMap>(length);
+            rule._FlagPositions = new List<int>();
+
+            return rule;
         }
 
         private static void CheckFlag(MineRule rule, MapArgs args) 
@@ -151,5 +163,17 @@ namespace QuestDemo
 
         public MapArgs(int count, int position, EMineMap mineMap) 
             => (this.Count, this.Position, this.MineMap) = (count, position, mineMap);
+    }
+
+    [Serializable]
+    public class MapInitArgs : InitArgs 
+    {
+        public int Column { get; }
+        public int Row { get; }
+        public int MineCount { get; }
+        public bool HasCleared { get; }
+
+        public MapInitArgs(int column, int row, int mineCount, bool hasCleared)
+            => (this.Column, this.Row, this.MineCount, this.HasCleared) = (column, row, mineCount, hasCleared);
     }
 }

@@ -13,12 +13,12 @@ MonoBehaviour:
   m_Name: MineQuest 2
   m_EditorClassIdentifier: 
   _Timer:
-    _PassTime: 0
+    _PassTime: 2290
     _Interval: 10
   _Rule:
     _Column: 5
     _Row: 5
     _MineCount: 2
-    _Progress: 0
-    _Map: 
+    _Progress: 3
+    _Map: 01000000010000000100000002000000010000000100000001000000010000000100000001000000010000000100000001000000010000000200000001000000010000000100000001000000010000000100000001000000010000000100000001000000
     _FlagPositions: 

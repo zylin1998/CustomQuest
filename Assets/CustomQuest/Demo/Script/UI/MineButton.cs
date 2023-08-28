@@ -8,151 +8,46 @@ using TMPro;
 
 namespace QuestDemo
 {
-    public class MineButton : MonoBehaviour, IPointerDownHandler, IPointerUpHandler, IPointerClickHandler
+    public class MineButton : MonoBehaviour, IMine, IPointerDownHandler, IPointerUpHandler, IPointerClickHandler
     {
         [SerializeField]
         private Image _AreaImage;
         [SerializeField]
         private TextMeshProUGUI _MineNumber;
-        [SerializeField]
-        private List<MineButton> _Square;
         
         public int Position { get; set; }
         public bool IsMine { get; set; }
         public bool IsFlag { get; private set; }
         public bool IsDetected { get; private set; }
+        public List<IMine> Square { get; private set; }
 
-        private static System.Action<MapArgs> OnDetected = (var) => { };
-
-        public static event System.Action<MapArgs> DetectedEvent 
-        {
-            add => OnDetected += value;
-            
-            remove => OnDetected -= value;
-        }
+        bool IMine.IsFlag { get => this.IsFlag; set => this.IsFlag = value; }
+        bool IMine.IsDetected { get => this.IsDetected; set => this.IsDetected = value; }
+        List<IMine> IMine.Square { get => this.Square; set => this.Square = value; }
 
         private void Awake()
         {
-            this._Square = new List<MineButton>();
+            this.Square = new List<IMine>();
         }
 
         private void Start()
         {
-            this._MineNumber.SetText("");
+            var sprite = QuestDemoUI.ImageDetail.Ground;
+            var color = ImageDetail.Normal;
+            var count = string.Empty;
 
-            ImageDetail.SetImage(this._AreaImage, QuestDemoUI.ImageDetail.Ground, ImageDetail.Normal);
+            this.SetUsersInterface(new IMine.SettingArgs(sprite, color, count));
         }
 
-        #region Interact Movement
-
-        private static int Detected(MineButton mine) 
+        public void SetUsersInterface(IMine.SettingArgs args) => Setting(this, args);
+        
+        private static void Setting(MineButton mineButton, IMine.SettingArgs args) 
         {
-            if (mine.IsDetected || mine.IsFlag) { return 0; }
+            ImageDetail.SetImage(mineButton._AreaImage, args.Sprite, args.Color);
 
-            mine.IsDetected = true;
-
-            if (!mine.IsMine)
-            {
-                ImageDetail.SetImage(mine._AreaImage, null, ImageDetail.Clear);
-
-                var mineCount = mine._Square.Count(c => c.IsMine);
-                var hasMine = mineCount > 0;
-
-                mine._MineNumber.SetText(string.Format("{0}", hasMine ? mineCount : ""));
-
-                return 1 + (hasMine ? 0 : mine._Square.Sum(f => Detected(f)));
-            }
-
-            ImageDetail.SetImage(mine._AreaImage, QuestDemoUI.ImageDetail.Mine, ImageDetail.Normal);
-
-            return -1;
+            mineButton._MineNumber.SetText(args.Count);
+            mineButton.gameObject.SetActive(args.Active);
         }
-
-        private static int SetFlag(MineButton mine)
-        {
-            if (!mine.IsDetected)
-            {
-                var sprite = mine.IsFlag ? QuestDemoUI.ImageDetail.Ground : QuestDemoUI.ImageDetail.Flag;
-
-                ImageDetail.SetImage(mine._AreaImage, sprite, ImageDetail.Normal);
-
-                var isFlag = mine.IsFlag ? -1 : 1;
-
-                mine.IsFlag = !mine.IsFlag;
-
-                return isFlag;
-            }
-
-            return 0;
-        }
-
-        #endregion
-
-        #region State Setting
-
-        public static void SetSquare(MineButton mine, IEnumerable<MineButton> mineButtons) 
-        {
-            mine._Square.Clear();
-            mine._Square.AddRange(mineButtons);
-        }
-
-        public static void ShowMine(MineButton mine) 
-        {
-            var sprite = mine.IsMine ? QuestDemoUI.ImageDetail.Mine : null;
-            var color = mine.IsMine ? ImageDetail.Normal : ImageDetail.Clear;
-
-            if (!mine.IsMine)
-            {
-                var mineCount = mine._Square.Count(c => c.IsMine);
-
-                mine._MineNumber.SetText(string.Format("{0}", mineCount > 0 ? mineCount : ""));
-            }
-
-            ImageDetail.SetImage(mine._AreaImage, sprite, color);
-        }
-
-        public static void Reset(MineButton mine)
-        {
-            mine.IsMine = false;
-            mine.IsFlag = false;
-            mine.IsDetected = false;
-            mine.Position = 0;
-
-            mine._MineNumber.SetText("");
-
-            ImageDetail.SetImage(mine._AreaImage, QuestDemoUI.ImageDetail.Ground, ImageDetail.Normal);
-
-            mine.gameObject.SetActive(true);
-        }
-
-        private static EMineMap CheckType(PointerEventData.InputButton button) 
-        {
-            if (button == PointerEventData.InputButton.Left) { return QuestDemo.CheckType; }
-            if (button == PointerEventData.InputButton.Right) { return EMineMap.Flag; }
-
-            return EMineMap.None;
-        }
-
-        private static void MineButtonEvent(MineButton mine, EMineMap checkType) 
-        {
-            if (checkType == EMineMap.Flag)
-            {
-                var setFlag = SetFlag(mine);
-
-                OnDetected.Invoke(new MapArgs(setFlag, mine.Position, EMineMap.Flag));
-            }
-
-            if (checkType == EMineMap.Space)
-            {
-                var detected = Detected(mine);
-
-                var mineMap = detected >= 0 ? EMineMap.Space : EMineMap.Mine;
-
-                OnDetected.Invoke(new MapArgs(detected, mine.Position, mineMap));
-            }
-        }
-
-        #endregion
 
         #region Pointer Events
 
@@ -172,9 +67,9 @@ namespace QuestDemo
 
         public void OnPointerClick(PointerEventData eventData) 
         {
-            var checkType = CheckType(eventData.button);
+            var checkType = IMine.CheckType(eventData.button);
 
-            MineButtonEvent(this, checkType);
+            IMine.MineButtonEvent(this, checkType);
         }
 
         #endregion

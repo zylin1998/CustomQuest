@@ -5,26 +5,27 @@ using System.Collections.Generic;
 
 namespace Custom.Quest
 {
-    public interface IMission : IClear
+    public interface IMission : IInitialize<IMission>, IClear
     {
         public EProgress Progress { get; }
         public IReward Reward { get; }
-        public bool IsComplete { get; }
+        public string Describe { get; }
 
-        public IMission Initialize();
-        public IMission Start();
         public IMission End();
 
-        public EProgress OnValueChange(QuestArgs args);
+        public EProgress OnValueChange(MissionArgs args);
 
         [Serializable]
         public enum EProgress
         {
             None,
-            Start,
-            Progress,
+            UnComplete,
             Complete,
             End
         }
     }
+
+    public class MissionArgs : QuestArgs { }
+
+    public class MissionInitArgs : InitArgs { }
 }

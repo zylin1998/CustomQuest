@@ -21,6 +21,7 @@ namespace Custom.Quest
 
 
         public abstract IQuest Initialize();
+        public abstract IQuest Initialize(InitArgs args);
         public abstract IQuest Start();
         public abstract IQuest End();
         public abstract IQuest Reset();
@@ -30,17 +31,18 @@ namespace Custom.Quest
         IEnumerator IEnumerable.GetEnumerator() => this.GetEnumerator();
     }
 
-    public interface IQuest : IEnumerable<IElement>, IClear
+    public interface IQuest : IEnumerable<IElement>, IInitialize<IQuest>, IClear
     {
         public IReward Reward { get; }
         public IRule Rule { get; }
         public bool HasCleared { get; }
 
-        public IQuest Initialize();
         public IQuest Start();
         public IQuest End();
         public IQuest Reset();
 
         public TElement GetElement<TElement>() where TElement : IElement => this.OfType<TElement>().First();
     }
+    
+    public class QuestArgs : InitArgs { }
 }

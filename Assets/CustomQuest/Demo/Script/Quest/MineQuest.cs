@@ -3,10 +3,11 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using Custom.Quest;
+using Custom;
 
 namespace QuestDemo
 {
-    [CreateAssetMenu(fileName = "MineQuest", menuName = "Quest Demo/Quest", order = 1)]
+    [CreateAssetMenu(fileName = "MineQuest", menuName = "Quest Demo/Quest/Quest", order = 1)]
     public class MineQuest : ScriptableObject, IQuest
     {
         [SerializeField]
@@ -23,10 +24,20 @@ namespace QuestDemo
         public IQuest Initialize() 
         {
             this._Rule.Initialize();
-
-            this.ToList().ForEach(f => f.Initialize());
+            this._Timer.Initialize();
 
             return this;
+        }
+
+        public IQuest Initialize(InitArgs args) 
+        {
+            if (args is MineQuestInitArgs init) 
+            {
+                this._Rule.Initialize(init.RuleInitArgs);
+                this._Timer.Initialize(init.TimerInitArgs);
+            }
+
+            return this.Initialize();
         }
 
         public IQuest Start()
@@ -40,7 +51,7 @@ namespace QuestDemo
 
         public IQuest End() 
         {
-            this.ToList().ForEach(f => f.EndInvoke());
+            this._Timer.EndInvoke();
 
             return this;
         }
@@ -49,7 +60,7 @@ namespace QuestDemo
         {
             this._Rule.Reset();
 
-            this.ToList().ForEach(f => f.Reset());
+            this._Timer.Reset();
 
             return this;
         }
@@ -57,5 +68,14 @@ namespace QuestDemo
         public IEnumerator<IElement> GetEnumerator() => new List<IElement> { this._Timer }.GetEnumerator();
 
         IEnumerator IEnumerable.GetEnumerator() => this.GetEnumerator();
+    }
+
+    public class MineQuestInitArgs : QuestArgs 
+    {
+        public MapInitArgs RuleInitArgs { get; }
+        public TimerInitArgs TimerInitArgs { get; }
+
+        public MineQuestInitArgs(MapInitArgs map, TimerInitArgs timer)
+            => (this.RuleInitArgs, this.TimerInitArgs) = (map, timer);
     }
 }

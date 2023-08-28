@@ -41,38 +41,11 @@ namespace QuestDemo
 
         #endregion
 
-        #region Static Properties
-
-        private static EMineMap _CheckType;
-
-        public static EMineMap CheckType 
-        { 
-            get => _CheckType;
-
-            set 
-            {
-                _CheckType = value;
-
-                OnTypeChanged.Invoke(value);
-            }
-        }
-
-        private static System.Action<EMineMap> OnTypeChanged = (type) => { };
-
-        public static event System.Action<EMineMap> TypeChangedEvent 
-        {
-            add => OnTypeChanged += value;
-
-            remove => OnTypeChanged -= value;
-        }
-
-        #endregion
-
         #region Script Behaviour
 
         private void Start()
         {
-            MineButton.DetectedEvent += this.CheckRule;
+            IMine.DetectedEvent += this.CheckRule;
 
             ResultMessage.Previous.ClickEvent += this.PreviousQuest;
             ResultMessage.Restart.ClickEvent += this.RestartQuest;
@@ -85,13 +58,11 @@ namespace QuestDemo
 
         private void OnDestroy()
         {
-            MineButton.DetectedEvent -= this.CheckRule;
+            IMine.DetectedEvent -= this.CheckRule;
 
             ResultMessage.Previous.ClickEvent -= this.PreviousQuest;
             ResultMessage.Restart.ClickEvent -= this.RestartQuest;
             ResultMessage.Next.ClickEvent -= this.NextQuest;
-
-            OnTypeChanged = (type) => { };
         }
 
         #endregion
@@ -116,8 +87,8 @@ namespace QuestDemo
         {
             this.CheckRule(new MapArgs(0, 0, EMineMap.None));
 
-            CheckType = EMineMap.Space;
-
+            IMine.DetectedType = EMineMap.Space;
+            
             this.Quest.Start();
         }
 

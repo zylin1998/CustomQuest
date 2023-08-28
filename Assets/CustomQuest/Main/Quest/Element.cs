@@ -8,17 +8,17 @@ namespace Custom.Quest
 {
     public abstract class Element : ScriptableObject, IElement
     {
-        public abstract void Initialize();
+        public abstract IElement Initialize();
+        public abstract IElement Initialize(InitArgs args);
+        public abstract IElement Reset();
         public abstract void Invoke();
         public abstract void EndInvoke();
-        public abstract void Reset();
     }
 
-    public interface IElement 
+    public interface IElement : IInitialize<IElement> 
     {
-        public void Initialize();
         public void Invoke();
         public void EndInvoke();
-        public void Reset();
+        public IElement Reset();
     }
 }

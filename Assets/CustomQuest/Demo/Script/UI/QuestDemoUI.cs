@@ -63,7 +63,10 @@ namespace QuestDemo
 
                 if (args.Quest.IsClear) 
                 {
-                    this._MissionPanel.CheckMission(new MineMissionArgs(args.Coordinate));
+                    MissionEnumeration.Coordinate.Invoke(new MineMissionArgs(args.Coordinate));
+                    MissionEnumeration.MineCount.Invoke(new MineCountArgs(args.MineGather));
+
+                    this._MissionPanel.SetMission();
                 }
             }
         }
@@ -128,15 +131,23 @@ namespace QuestDemo
         public bool IsFront { get; }
         public bool IsBack { get; }
         public Coordinate Coordinate { get; }
+        public int MineGather => _MineGather;
+
+        private static int _MineGather = 0;
 
         public RuleResultArgs(MineQuest quest, MineChapter chapter)
         {
             this.Quest = quest;
             this.FakeMineCount = (quest.Rule as MineRule).FakeMineCount;
             this.Progress = quest.Rule.Progress;
-            this.IsFront = chapter.IsFirst;
+            this.IsFront = chapter.IsFront;
             this.IsBack = chapter.IsBack;
             this.Coordinate = chapter.Coordinate;
+
+            if (this.Progress == IRule.EProgress.FulFilled) 
+            {
+                _MineGather += (quest.Rule as MineRule).MineCount;
+            }
         }
     }
 }

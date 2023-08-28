@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Collections;
 using System.Collections.Generic;
+using Custom;
 using Custom.Quest;
 using UnityEngine;
 
@@ -22,15 +23,23 @@ namespace QuestDemo
 
         public void Adding(object sender, System.Timers.ElapsedEventArgs e) => this._PassTime += this.Interval;
 
-        public void Initialize()
-        {
-            this._PassTime = 0f;
-            this.Interval = this._Interval;
-        }
+        public IElement Initialize() => this.Initialize(new TimerInitArgs(0, this._Interval));
+        public IElement Initialize(InitArgs args) => args is TimerInitArgs init ? TimerInit(this, init) : this;
+        public IElement Reset() => this.Initialize();
 
         public void Invoke() => this.Start();
         public void EndInvoke() => this.Stop();
-        public void Reset() => this.Initialize();
+
+        private static IElement TimerInit(Timer timer, TimerInitArgs args) 
+        {
+            timer.Stop();
+
+            timer._PassTime = args.PassTime;
+            timer._Interval = args.Interval;
+            timer.Interval = timer._Interval;
+
+            return timer;
+        }
     }
 
     [Serializable]
@@ -64,5 +73,14 @@ namespace QuestDemo
             this._Minute = this.SecondOnly % 3600 / 60;
             this._Second = this.SecondOnly % 60;
         }
+    }
+
+    public class TimerInitArgs : InitArgs
+    {
+        public double PassTime { get; }
+        public double Interval { get; }
+
+        public TimerInitArgs(double passTime, double interval)
+            => (this.PassTime, this.Interval) = (passTime, interval);
     }
 }

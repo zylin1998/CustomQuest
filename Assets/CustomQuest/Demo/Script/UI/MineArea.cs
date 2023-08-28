@@ -6,14 +6,14 @@ using UnityEngine.UI;
 
 namespace QuestDemo
 {
-    public class MineArea : MonoBehaviour, IEnumerable<MineButton>
+    public class MineArea : MonoBehaviour, IEnumerable<IMine>
     {
         [SerializeField]
         private Transform _Content;
         [SerializeField]
         private GridLayoutGroup _GridLayoutGroup;
-        [SerializeField]
-        private List<MineButton> _MineButtons;
+        
+        private List<IMine> _MineButtons;
 
         private Vector2Int _Square;
 
@@ -29,12 +29,12 @@ namespace QuestDemo
             }
         }
 
-        public MineButton this[int x, int y] => this._MineButtons[LocateToIndex(new Vector2Int(x, y))];
-        public MineButton this[Vector2Int locate] => this._MineButtons[LocateToIndex(locate)];
+        public IMine this[int x, int y] => this._MineButtons[LocateToIndex(new Vector2Int(x, y))];
+        public IMine this[Vector2Int locate] => this._MineButtons[LocateToIndex(locate)];
 
         private void Awake()
         {
-            this._MineButtons = new List<MineButton>();
+            this._MineButtons = new List<IMine>();
 
             this._MineButtons.Clear();
             this._MineButtons.AddRange(this._Content.GetComponentsInChildren<MineButton>());
@@ -51,13 +51,13 @@ namespace QuestDemo
             {
                 if (c < map.Count)
                 {
-                    MineButton.Reset(space);
+                    IMine.Reset(space);
                     space.IsMine = map[c] == EMineMap.Mine;
 
                     this.SetSquare(c, space);
                 }
 
-                else { space.gameObject.SetActive(false); }
+                else { (space as Component)?.gameObject.SetActive(false); }
 
                 c++;
             });
@@ -65,15 +65,15 @@ namespace QuestDemo
 
         public void ShowMine() 
         {
-            this._MineButtons.ForEach(f => MineButton.ShowMine(f));
+            this._MineButtons.ForEach(f => IMine.ShowMine(f));
         }
 
-        private void SetSquare(int index, MineButton mine)
+        private void SetSquare(int index, IMine mine)
         {
             var sizeX = this.Square.x;
             var sizeY = this.Square.y;
             var locate = this.IndexToLocate(index);
-            var list = new List<MineButton>();
+            var list = new List<IMine>();
 
             var locateList = new List<Vector2Int>
             {
@@ -99,7 +99,7 @@ namespace QuestDemo
 
             mine.Position = index;
 
-            MineButton.SetSquare(mine, list);
+            IMine.SetSquare(mine, list);
         }
 
         private int LocateToIndex(Vector2Int vector)
@@ -119,7 +119,7 @@ namespace QuestDemo
 
         #endregion
 
-        public IEnumerator<MineButton> GetEnumerator() => this._MineButtons.GetEnumerator();
+        public IEnumerator<IMine> GetEnumerator() => this._MineButtons.GetEnumerator();
 
         IEnumerator IEnumerable.GetEnumerator() => this.GetEnumerator();
     }

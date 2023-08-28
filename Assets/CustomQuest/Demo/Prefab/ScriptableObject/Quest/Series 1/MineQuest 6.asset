@@ -10,7 +10,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 09c28bddc67684741842d56f032160c2, type: 3}
-  m_Name: MineQuest 3
+  m_Name: MineQuest 6
   m_EditorClassIdentifier: 
   _Timer:
     _PassTime: 0
@@ -18,7 +18,7 @@ MonoBehaviour:
   _Rule:
     _Column: 5
     _Row: 5
-    _MineCount: 3
-    _Progress: 0
+    _MineCount: 6
+    _Progress: 1
     _Map: 
     _FlagPositions: 

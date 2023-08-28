@@ -9,19 +9,14 @@ namespace QuestDemo
 {
     public class MissionSwitch : MonoBehaviour, IPointerClickHandler
     {
-        [SerializeField]
-        private bool _Switch = false;
-        
         public void OnPointerClick(PointerEventData eventData) 
         {
-            this._Switch = !this._Switch;
-
-            OnClick.Invoke(this._Switch);
+            OnClick.Invoke();
         }
 
-        private static Action<bool> OnClick;
+        private static Action OnClick;
 
-        public static event Action<bool> ClickEvent 
+        public static event Action ClickEvent 
         {
             add => OnClick += value;
             

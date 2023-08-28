@@ -9,16 +9,9 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 09c28bddc67684741842d56f032160c2, type: 3}
-  m_Name: MineQuest 4
+  m_Script: {fileID: 11500000, guid: 532eeecdf3128b445997427a98a6f99e, type: 3}
+  m_Name: Mission Collect
   m_EditorClassIdentifier: 
-  _Timer:
-    _PassTime: 0
-    _Interval: 10
-  _Rule:
-    _Column: 5
-    _Row: 5
-    _MineCount: 4
-    _Progress: 0
-    _Map: 
-    _FlagPositions: 
+  _MissionSeries:
+  - {fileID: 11400000, guid: b5d7c27c6bed9c14bba904138d76072b, type: 2}
+  - {fileID: 11400000, guid: 975524c5709ce2a41890d96eda8ef041, type: 2}

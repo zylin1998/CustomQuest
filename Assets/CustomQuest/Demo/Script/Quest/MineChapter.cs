@@ -6,7 +6,7 @@ using Custom.Quest;
 
 namespace QuestDemo
 {
-    [CreateAssetMenu(fileName = "MineQuest Chapter", menuName = "Quest Demo/Quest Chapter", order = 1)]
+    [CreateAssetMenu(fileName = "MineQuest Chapter", menuName = "Quest Demo/Quest/Quest Chapter", order = 1)]
     public class MineChapter : Chapter<MineQuestSeries>
     {
         public bool IsFirst => this.Flag <= 0;
@@ -60,16 +60,6 @@ namespace QuestDemo
             this.Flag--;
 
             return true;
-        }
-
-        public new MineChapter Initialize()
-        {
-            return base.Initialize() as MineChapter;
-        }
-
-        public new MineChapter Reset()
-        {
-            return base.Reset() as MineChapter;
         }
     }
 }

@@ -18,31 +18,16 @@ namespace QuestDemo
         [SerializeField]
         private TextMeshProUGUI _DescribeText;
 
-        public MineMission Mission { get; private set; }
+        public IMission Mission { get; private set; }
         
-        public void SetMission(MineMission mission) 
+        public void SetMission(IMission mission) 
         {
             if (this.Mission != mission)
             {
                 this.Mission = mission;
-
-                SetContent(this);
             }
-        }
-
-        public void SetMission(MineMissionArgs args)
-        {
-            var progress = this.Mission.Progress;
-
-            if (!this.Mission.IsClear && !this.Mission.IsComplete)
-            {
-                this.Mission.OnValueChange(args);
-            }
-
-            if (progress != this.Mission.Progress) 
-            {
-                SetContent(this);
-            }
+            
+            SetContent(this);
         }
 
         private Color _LastColor;
@@ -58,6 +43,8 @@ namespace QuestDemo
 
         public void OnPointerUp(PointerEventData eventData) 
         {
+            if (this.Mission.IsClear) { return; }
+
             this._Background.color = this._LastColor;
         }
 
@@ -66,9 +53,9 @@ namespace QuestDemo
             CheckMissionProgress(this);
         }
 
-        private static Action<MineMission> OnClick;
+        private static Action OnClick;
         
-        public static event Action<MineMission> ClickEvent
+        public static event Action ClickEvent
         {
             add => OnClick += value;
 
@@ -78,37 +65,45 @@ namespace QuestDemo
         public static void CheckMissionProgress(MissionButton button) 
         {
             var progress = button.Mission.Progress;
-
+            
             if (progress == IMission.EProgress.Complete) 
             {
-                OnClick?.Invoke(button.Mission);
+                button.Mission.End();
+
+                OnClick?.Invoke();
             }
         }
 
         public static void SetContent(MissionButton button) 
         {
             var mission = button.Mission;
-            
-            if (mission.Progress == IMission.EProgress.End || mission.Progress == IMission.EProgress.Complete) 
-            {
-                button._Icon.sprite = MissionImageDetail.SpriteComplete;
 
-                if(mission.Progress == IMission.EProgress.End) { button._Background.color = MissionImageDetail.ColorEnd; }
-                if(mission.Progress == IMission.EProgress.Complete) { button._Background.color = MissionImageDetail.ColorComplete; }
-            }
-
-            if (mission.Progress == IMission.EProgress.Start || mission.Progress == IMission.EProgress.Progress) 
+            if (mission.Progress == IMission.EProgress.UnComplete) 
             {
                 button._Icon.sprite = MissionImageDetail.SpriteProgress;
 
                 button._Background.color = MissionImageDetail.ColorNormal;
             }
 
-            button._DescribeText.SetText(string.Format("Complete {0} - {1}", mission.QuestSeriesFlag + 1, mission.QuestFlag + 1));
+            if (mission.Progress == IMission.EProgress.Complete) 
+            {
+                button._Icon.sprite = MissionImageDetail.SpriteComplete;
+                
+                button._Background.color = MissionImageDetail.ColorComplete;
+            }
+
+            if (mission.Progress == IMission.EProgress.End)
+            {
+                button._Icon.sprite = MissionImageDetail.SpriteComplete;
+
+                button._Background.color = MissionImageDetail.ColorEnd;
+            }
+            
+            button._DescribeText.SetText(mission.Describe);
         }
     }
 
-    [System.Serializable]
+    [Serializable]
     public struct MissionImageDetail
     {
         [SerializeField]
