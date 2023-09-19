@@ -1,0 +1,26 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 97e9d9e3b936f3b448bd9a46d100080b, type: 3}
+  m_Name: CountMissions
+  m_EditorClassIdentifier: 
+  _Items:
+  - _Count: 5
+  - _Count: 10
+  - _Count: 15
+  - _Count: 20
+  - _Count: 25
+  - _Count: 30
+  - _Count: 35
+  - _Count: 40
+  - _Count: 45
+  - _Count: 50
+  _Invisible: 1

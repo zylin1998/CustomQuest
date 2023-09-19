@@ -4,7 +4,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace Custom.Quest
+namespace Custom
 {
     public interface IClear
     {

@@ -2138,7 +2138,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _Content: {fileID: 67077038}
   _GridLayoutGroup: {fileID: 67077039}
-  _MineButtons: []
 --- !u!1001 &68207499
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -19941,7 +19940,7 @@ GameObject:
   - component: {fileID: 790557167}
   - component: {fileID: 790557168}
   m_Layer: 0
-  m_Name: QuestDemo
+  m_Name: MineSweeper
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -19974,8 +19973,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: db4724d380a4d024f8e0063601f66fff, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _DemoQuestChapter: {fileID: 11400000, guid: 5aa599353dbfd2043a0b2957d8696c07, type: 2}
-  _QuestDemoUI: {fileID: 1817754953}
 --- !u!1001 &791748220
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -31344,6 +31341,53 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 1673c7a19b9f31d499591a6495a6554a, type: 3}
+--- !u!1 &1310780933
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1310780935}
+  - component: {fileID: 1310780934}
+  m_Layer: 0
+  m_Name: DataFlow
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1310780934
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1310780933}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2bd5b4bb118ca0842bc468b443ca7e6c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _Quest: {fileID: 11400000, guid: f48bafc34b14e45428d3d61f89383a15, type: 2}
+  _QuestRoot: {fileID: 11400000, guid: 5abcca6a62e6b164db8a7cfa52f0ddfb, type: 2}
+  _MissionRoot: {fileID: 11400000, guid: 8820112e9f67be64689c3fad0065ea0b, type: 2}
+--- !u!4 &1310780935
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1310780933}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 5
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!224 &1312020823 stripped
 RectTransform:
   m_CorrespondingSourceObject: {fileID: 1068359957401557241, guid: 4fd942ecbf6f02b4a9e55fabbd2e5cd2, type: 3}
@@ -42966,10 +43010,14 @@ MonoBehaviour:
   _MissionPanel: {fileID: 1312020824}
   _MineCount: {fileID: 198312170}
   _QuestDetail: {fileID: 324701453}
-  _ImageDetail:
+  _MineImageDetail:
     _Ground: {fileID: 10907, guid: 0000000000000000f000000000000000, type: 0}
     _Mine: {fileID: 21300000, guid: a3ced8f7044b9de4787602a9e9b20ea7, type: 3}
     _Flag: {fileID: 21300000, guid: 4a231ba0e81e63849a8f985c228e8acd, type: 3}
+    _ColorBlock:
+      _Normal: {r: 1, g: 1, b: 1, a: 1}
+      _PointerDown: {r: 0.69803923, g: 0.69803923, b: 0.69803923, a: 1}
+      _Clear: {r: 1, g: 1, b: 1, a: 0}
   _MissionImageDetail:
     _Progress: {fileID: 21300000, guid: 8d98ab6168c3e91439339f1908b8fe97, type: 3}
     _Complete: {fileID: 21300000, guid: 4a231ba0e81e63849a8f985c228e8acd, type: 3}
@@ -51264,6 +51312,10 @@ PrefabInstance:
     - target: {fileID: 1068359957401557240, guid: 4fd942ecbf6f02b4a9e55fabbd2e5cd2, type: 3}
       propertyPath: m_Name
       value: Panel_Mission
+      objectReference: {fileID: 0}
+    - target: {fileID: 1068359957401557240, guid: 4fd942ecbf6f02b4a9e55fabbd2e5cd2, type: 3}
+      propertyPath: m_IsActive
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 1068359957401557241, guid: 4fd942ecbf6f02b4a9e55fabbd2e5cd2, type: 3}
       propertyPath: m_Pivot.x

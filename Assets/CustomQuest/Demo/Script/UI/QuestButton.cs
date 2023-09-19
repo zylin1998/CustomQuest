@@ -25,7 +25,7 @@ namespace QuestDemo
             { 
                 this._Interactable = value;
 
-                ImageDetail.SetImage(this._Background, value ? ImageDetail.Normal : ImageDetail.PointerDown);
+                IMine.ImageDetail.SetImage(this._Background, value ? IMine.ImageDetail.Normal : IMine.ImageDetail.PointerDown);
             }
         }
 
@@ -42,14 +42,14 @@ namespace QuestDemo
         {
             if (!Interactable) { return; }
 
-            ImageDetail.SetImage(this._Background, ImageDetail.PointerDown);
+            IMine.ImageDetail.SetImage(this._Background, IMine.ImageDetail.PointerDown);
         }
 
         public void OnPointerUp(PointerEventData eventData)
         {
             if (!Interactable) { return; }
 
-            ImageDetail.SetImage(this._Background, ImageDetail.Normal);
+            IMine.ImageDetail.SetImage(this._Background, IMine.ImageDetail.Normal);
         }
 
         public void OnPointerClick(PointerEventData eventData) 

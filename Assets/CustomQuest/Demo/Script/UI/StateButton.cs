@@ -1,8 +1,10 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.EventSystems;
+using Custom;
 
 namespace QuestDemo
 {
@@ -19,37 +21,43 @@ namespace QuestDemo
 
         private void Awake()
         {
-            IMine.TypeChangedEvent += this.OnTypeChanged;
+            MineSweeper.DetectedTypeChanged += this.DetectedTypeChanged;
         }
 
         private void Start()
         {
-            this.Sprite = this._CheckType == EMineMap.Flag ? QuestDemoUI.ImageDetail.Flag : QuestDemoUI.ImageDetail.Mine;
+            this.Sprite = this._CheckType == EMineMap.Flag ? IMine.ImageDetail.Flag : IMine.ImageDetail.Mine;
 
             this._TypeImage.sprite = this.Sprite;
         }
 
         private void OnDestroy()
         {
-            IMine.TypeChangedEvent -= this.OnTypeChanged;
+            MineSweeper.DetectedTypeChanged -= this.DetectedTypeChanged;
         }
 
-        public void OnTypeChanged(EMineMap map) 
+        public void DetectedTypeChanged(EMineMap map) 
         {
-            var color = this._CheckType != map ? ImageDetail.Normal : ImageDetail.PointerDown;
+            var color = this._CheckType != map ? IMine.ImageDetail.Normal : IMine.ImageDetail.PointerDown;
 
-            ImageDetail.SetImage(this._BackgroundImage, color);
+            IMine.ImageDetail.SetImage(this._BackgroundImage, color);
         }
 
-        public void OnPointerDown(PointerEventData eventData) => ImageDetail.SetImage(this._BackgroundImage, ImageDetail.PointerDown);
+        public void OnPointerDown(PointerEventData eventData)
+        {
+            IMine.ImageDetail.SetImage(this._BackgroundImage, IMine.ImageDetail.PointerDown);
+        }
         
         public void OnPointerUp(PointerEventData eventData)
         {
-            if (IMine.DetectedType == this._CheckType) { return; }
+            if (MineSweeper.DetectedType == this._CheckType) { return; }
 
-            ImageDetail.SetImage(this._BackgroundImage, ImageDetail.Normal);
+            IMine.ImageDetail.SetImage(this._BackgroundImage, IMine.ImageDetail.Normal);
         }
 
-        public void OnPointerClick(PointerEventData eventData)  => IMine.DetectedType = this._CheckType;
+        public void OnPointerClick(PointerEventData eventData)
+        {
+            MineSweeper.DetectedType = this._CheckType;
+        }
     }
 }

@@ -8,22 +8,20 @@ namespace Custom.Quest
 {
     public abstract class Rule : ScriptableObject, IRule
     {
-        public virtual IRule.EProgress Progress { get; }
+        public abstract IRule.EProgress Progress { get; }
+        public abstract IQuestInfo.Info QuestInfo { get; }
 
         public abstract IRule Start();
-        public abstract IRule Initialize();
-        public abstract IRule Initialize(InitArgs args);
-        public abstract IRule Reset();
-        public abstract IRule.EProgress CheckRule(QuestArgs args);
+        public abstract IRule.ProvideInfo CheckRule(object info);
     }
 
-    public interface IRule : IInitialize<IRule>
+    public interface IRule
     {
         public EProgress Progress { get; }
+        public IQuestInfo.Info QuestInfo { get; }
         
         public IRule Start();
-        public IRule Reset();
-        public EProgress CheckRule(QuestArgs args);
+        public ProvideInfo CheckRule(object info);
 
         [Serializable]
         public enum EProgress
@@ -33,6 +31,13 @@ namespace Custom.Quest
             Progress,
             FulFilled,
             Failed
+        }
+
+        public class ProvideInfo
+        {
+            public EProgress Progress { get; }
+
+            public ProvideInfo(IRule rule) => this.Progress = rule.Progress;
         }
     }
 }

@@ -11,10 +11,10 @@ namespace QuestDemo
     {
         public void OnPointerClick(PointerEventData eventData) 
         {
-            OnClick.Invoke();
+            OnClick?.Invoke();
         }
 
-        private static Action OnClick;
+        private static Action OnClick = () => { };
 
         public static event Action ClickEvent 
         {

@@ -42,16 +42,18 @@ namespace QuestDemo
 
         #region UI Map Setting
 
-        public void SetMine(IEnumerable<EMineMap> mineMap) 
+        public void SetMine(MapInfo info) 
         {
-            var map = mineMap.ToList();
+            this.Square = info.Size;
+
+            var map = info.Map;
 
             var c = 0;
             this._MineButtons.ForEach(space =>
             {
                 if (c < map.Count)
                 {
-                    IMine.Reset(space);
+                    MineButton.Reset(space);
                     space.IsMine = map[c] == EMineMap.Mine;
 
                     this.SetSquare(c, space);
@@ -65,7 +67,7 @@ namespace QuestDemo
 
         public void ShowMine() 
         {
-            this._MineButtons.ForEach(f => IMine.ShowMine(f));
+            this._MineButtons.ForEach(f => MineButton.Show(f));
         }
 
         private void SetSquare(int index, IMine mine)
@@ -99,7 +101,7 @@ namespace QuestDemo
 
             mine.Position = index;
 
-            IMine.SetSquare(mine, list);
+            MineSweeper.SetSquare(mine, list);
         }
 
         private int LocateToIndex(Vector2Int vector)

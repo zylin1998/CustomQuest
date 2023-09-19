@@ -2,7 +2,6 @@
 using System.Linq;
 using System.Collections;
 using System.Collections.Generic;
-using Custom;
 using Custom.Quest;
 using UnityEngine;
 
@@ -11,35 +10,33 @@ namespace QuestDemo
     [Serializable]
     public class Timer : System.Timers.Timer, IElement
     {
-        [SerializeField]
         private double _PassTime = 0f;
-        [SerializeField]
-        private double _Interval = 10;
-
+        
         public TimeDisplay PassTime => new TimeDisplay(this._PassTime);
 
-        public Timer() : base() => this.Elapsed += this.Adding;
-        public Timer(double interval) : base(interval) => this.Elapsed += this.Adding;
+        public Timer() : base()
+        {
+            this._PassTime = 0;
+            this.Elapsed += this.Adding;
+        }
+        
+        public Timer(double passTime, double interval) : base(interval)
+        {
+            this._PassTime = passTime;
+            this.Elapsed += this.Adding;
+        }
 
         public void Adding(object sender, System.Timers.ElapsedEventArgs e) => this._PassTime += this.Interval;
 
-        public IElement Initialize() => this.Initialize(new TimerInitArgs(0, this._Interval));
-        public IElement Initialize(InitArgs args) => args is TimerInitArgs init ? TimerInit(this, init) : this;
-        public IElement Reset() => this.Initialize();
+        public IElement Reset() 
+        {
+            this._PassTime = 0;
+
+            return this;
+        }
 
         public void Invoke() => this.Start();
         public void EndInvoke() => this.Stop();
-
-        private static IElement TimerInit(Timer timer, TimerInitArgs args) 
-        {
-            timer.Stop();
-
-            timer._PassTime = args.PassTime;
-            timer._Interval = args.Interval;
-            timer.Interval = timer._Interval;
-
-            return timer;
-        }
     }
 
     [Serializable]
@@ -73,14 +70,5 @@ namespace QuestDemo
             this._Minute = this.SecondOnly % 3600 / 60;
             this._Second = this.SecondOnly % 60;
         }
-    }
-
-    public class TimerInitArgs : InitArgs
-    {
-        public double PassTime { get; }
-        public double Interval { get; }
-
-        public TimerInitArgs(double passTime, double interval)
-            => (this.PassTime, this.Interval) = (passTime, interval);
     }
 }

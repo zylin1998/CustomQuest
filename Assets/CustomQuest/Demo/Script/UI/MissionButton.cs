@@ -4,12 +4,13 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.EventSystems;
-using Custom.Quest;
 using TMPro;
+using Custom;
+using Custom.Quest;
 
 namespace QuestDemo
 {
-    public class MissionButton : MonoBehaviour, IPointerDownHandler, IPointerUpHandler, IPointerClickHandler
+    public class MissionButton : MonoBehaviour, IPointerDownHandler, IPointerUpHandler, IPointerClickHandler, IReciever
     {
         [SerializeField]
         private Image _Icon;
@@ -18,11 +19,16 @@ namespace QuestDemo
         [SerializeField]
         private TextMeshProUGUI _DescribeText;
 
-        public IMission Mission { get; private set; }
+        public IMissionInfo.Info Mission { get; private set; }
         
-        public void SetMission(IMission mission) 
+        public void SetInfo(object info) 
         {
-            if (this.Mission != mission)
+            if (info is IMissionInfo.Info mission) { this.SetMission(mission); }
+        }
+
+        public void SetMission(IMissionInfo.Info mission) 
+        {
+            if (!this.Mission.IsEqual(mission))
             {
                 this.Mission = mission;
             }
@@ -34,8 +40,6 @@ namespace QuestDemo
 
         public void OnPointerDown(PointerEventData eventData) 
         {
-            if (this.Mission.IsClear) { return; }
-
             this._LastColor = this._Background.color;
 
             this._Background.color = MissionImageDetail.ColorPointerDown;
@@ -43,8 +47,6 @@ namespace QuestDemo
 
         public void OnPointerUp(PointerEventData eventData) 
         {
-            if (this.Mission.IsClear) { return; }
-
             this._Background.color = this._LastColor;
         }
 
@@ -66,9 +68,9 @@ namespace QuestDemo
         {
             var progress = button.Mission.Progress;
             
-            if (progress == IMission.EProgress.Complete) 
+            if (progress == IMissionInfo.EProgress.Complete) 
             {
-                button.Mission.End();
+                button.Mission.Progress = IMissionInfo.EProgress.End;
 
                 OnClick?.Invoke();
             }
@@ -77,22 +79,22 @@ namespace QuestDemo
         public static void SetContent(MissionButton button) 
         {
             var mission = button.Mission;
-
-            if (mission.Progress == IMission.EProgress.UnComplete) 
+            
+            if (mission.Progress == IMissionInfo.EProgress.UnComplete) 
             {
                 button._Icon.sprite = MissionImageDetail.SpriteProgress;
 
                 button._Background.color = MissionImageDetail.ColorNormal;
             }
 
-            if (mission.Progress == IMission.EProgress.Complete) 
+            if (mission.Progress == IMissionInfo.EProgress.Complete) 
             {
                 button._Icon.sprite = MissionImageDetail.SpriteComplete;
                 
                 button._Background.color = MissionImageDetail.ColorComplete;
             }
 
-            if (mission.Progress == IMission.EProgress.End)
+            if (mission.Progress == IMissionInfo.EProgress.End)
             {
                 button._Icon.sprite = MissionImageDetail.SpriteComplete;
 

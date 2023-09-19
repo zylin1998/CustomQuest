@@ -3,26 +3,14 @@ using System.Linq;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using Custom.Quest;
+using Custom;
 
 namespace QuestDemo
 {
-    [CreateAssetMenu(fileName = "MineQuest Series", menuName = "Quest Demo/Quest/Quest Series", order = 1)]
-    public class MineQuestSeries : QuestSeries<MineQuest>
+    [CreateAssetMenu(fileName = "Quest Series", menuName = "Quest Demo/Quest/Quest Series", order = 1)]
+    public class MineQuestSeries : Series<MineQuestInfo> 
     {
-        public bool IsFirst => this.Flag <= 0;
-        public bool IsLast => this.Flag >= this._Quests.Count - 1;
-
-        public IQuest Next => this.MoveNext() ? this.Current : null;
-        public IQuest Previous => this.MovePrevious() ? this.Current : null;
-
-        public bool MovePrevious()
-        {
-            if (this.Flag <= 0) { return false; }
-
-            this.Flag--;
-
-            return true;
-        }
+        public override ISeriesEnumerator GetEnumerator()
+            => new SeriesEnumerator<MineQuestInfo.Info>(this._Items.ConvertAll(p => p.GetInfo().IsType<MineQuestInfo.Info>()));
     }
 }

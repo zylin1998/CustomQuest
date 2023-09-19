@@ -3,7 +3,6 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
-using Custom.Quest;
 
 namespace QuestDemo
 {
@@ -11,8 +10,6 @@ namespace QuestDemo
     {
         [SerializeField]
         private ScrollRect _ScrollRect;
-        [SerializeField]
-        private MissionCollect _MissionCollect;
         [SerializeField]
         private Animator _Animator;
         [SerializeField]
@@ -23,8 +20,6 @@ namespace QuestDemo
         private void Awake()
         {
             this._Buttons = this._ScrollRect.content.GetComponentsInChildren<MissionButton>().ToList();
-            
-            this._MissionCollect.Initialize();
         }
 
         private void Start()
@@ -49,21 +44,26 @@ namespace QuestDemo
             this._Animator.Play(name);
         }
 
-        public void SetMission() 
+        public void SetMission(MissionInfoPack pack) 
         {
-            var list = this._MissionCollect.Missions;
+            var list = pack?.Infos;
             
             var c = 0;
             this._Buttons.ForEach(f =>
             {
                 f.gameObject.SetActive(true);
-                
+
                 if (c < list.Count) { f.SetMission(list[c]); }
 
                 else { f.gameObject.SetActive(false); }
 
                 c++;
             });
+        }
+
+        public void SetMission() 
+        {
+            this.SetMission(DataFlow.Current.GetMissions());
         }
     }
 }

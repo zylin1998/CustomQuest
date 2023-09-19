@@ -17,36 +17,20 @@ namespace QuestDemo
         
         public int Position { get; set; }
         public bool IsMine { get; set; }
-        public bool IsFlag { get; private set; }
-        public bool IsDetected { get; private set; }
-        public List<IMine> Square { get; private set; }
-
-        bool IMine.IsFlag { get => this.IsFlag; set => this.IsFlag = value; }
-        bool IMine.IsDetected { get => this.IsDetected; set => this.IsDetected = value; }
-        List<IMine> IMine.Square { get => this.Square; set => this.Square = value; }
+        public bool IsFlag { get; set; }
+        public bool IsDetected { get; set; }
+        public List<IMine> Square { get; set; }
 
         private void Awake()
         {
             this.Square = new List<IMine>();
         }
 
-        private void Start()
+        public void SetInfo(object info) 
         {
-            var sprite = QuestDemoUI.ImageDetail.Ground;
-            var color = ImageDetail.Normal;
-            var count = string.Empty;
+            if (info is IMine.ImageInfo image) { Setting(this, image); }
 
-            this.SetUsersInterface(new IMine.SettingArgs(sprite, color, count));
-        }
-
-        public void SetUsersInterface(IMine.SettingArgs args) => Setting(this, args);
-        
-        private static void Setting(MineButton mineButton, IMine.SettingArgs args) 
-        {
-            ImageDetail.SetImage(mineButton._AreaImage, args.Sprite, args.Color);
-
-            mineButton._MineNumber.SetText(args.Count);
-            mineButton.gameObject.SetActive(args.Active);
+            if (info is IMine.DetailInfo detail) { SetImage(detail, this); }
         }
 
         #region Pointer Events
@@ -55,23 +39,100 @@ namespace QuestDemo
         {
             if (this.IsDetected) { return; }
 
-            this._AreaImage.color = ImageDetail.PointerDown;
+            this._AreaImage.color = IMine.ImageDetail.PointerDown;
         }
 
         public void OnPointerUp(PointerEventData eventData)
         {
-            if (IsDetected) { this._AreaImage.color = ImageDetail.Clear; }
+            if (this.IsDetected) { return; }
 
-            else { this._AreaImage.color = ImageDetail.Normal; }
+            this._AreaImage.color = IMine.ImageDetail.Normal;
         }
 
         public void OnPointerClick(PointerEventData eventData) 
         {
-            var checkType = IMine.CheckType(eventData.button);
+            if (this.IsDetected) { return; }
 
-            IMine.MineButtonEvent(this, checkType);
+            var checkType = CheckType(eventData.button);
+
+            MineSweeper.MineButtonEvent(this, checkType);
         }
 
         #endregion
+        
+        //For PointerClickEvent
+        protected static EMineMap CheckType(PointerEventData.InputButton button)
+        {
+            if (button == PointerEventData.InputButton.Left) { return MineSweeper.DetectedType; }
+            if (button == PointerEventData.InputButton.Right) { return EMineMap.Flag; }
+
+            return EMineMap.None;
+        }
+        
+        //Show Area Type at failed
+        public static void Show(IMine mine)
+        {
+            var sprite = mine.IsMine ? IMine.ImageDetail.Mine : null;
+            var color = mine.IsMine ? IMine.ImageDetail.Normal : IMine.ImageDetail.Clear;
+            var count = string.Empty;
+
+            if (!mine.IsMine)
+            {
+                var mineCount = mine.Square.Count(c => c.IsMine);
+
+                count = string.Format("{0}", mineCount > 0 ? mineCount : "");
+            }
+
+            mine.SetInfo(new IMine.ImageInfo(sprite, color, count));
+        }
+
+        private static void Setting(MineButton mineButton, IMine.ImageInfo info)
+        {
+            IMine.ImageDetail.SetImage(mineButton._AreaImage, info.Sprite, info.Color);
+
+            mineButton._MineNumber.SetText(info.Count);
+            mineButton.gameObject.SetActive(info.Active);
+        }
+
+        protected static void SetImage(IMine.DetailInfo info, MineButton mineButton) 
+        {
+            var imageInfo = default(IMine.ImageInfo);
+
+            if (info.AreaType == EMineMap.Space)
+            {
+                var str = string.Format("{0}", info.MineCount > 0 ? info.MineCount : "");
+
+                imageInfo = new IMine.ImageInfo(null, IMine.ImageDetail.Clear, str);
+            }
+
+            if (info.AreaType == EMineMap.Flag) 
+            {
+                var sprite = mineButton.IsFlag ? IMine.ImageDetail.Flag : IMine.ImageDetail.Ground;
+
+                imageInfo = new IMine.ImageInfo(sprite, IMine.ImageDetail.Normal, string.Empty);
+            }
+
+            if (info.AreaType == EMineMap.Mine)
+            {
+                imageInfo = new IMine.ImageInfo(IMine.ImageDetail.Mine, IMine.ImageDetail.Normal, string.Empty);
+            }
+
+            Setting(mineButton, imageInfo);
+        }
+
+        public static void Reset(IMine mine)
+        {
+            mine.IsMine = false;
+            mine.IsFlag = false;
+            mine.IsDetected = false;
+            mine.Position = 0;
+
+            var sprite = IMine.ImageDetail.Ground;
+            var color = IMine.ImageDetail.Normal;
+            var count = string.Empty;
+            var active = true;
+
+            mine.SetInfo(new IMine.ImageInfo(sprite, color, count, active));
+        }
     }
 }
